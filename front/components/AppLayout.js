@@ -3,7 +3,6 @@ import Link from 'next/link';
 import PropTypes from 'prop-types';
 import { Col, Input, Menu, Row } from 'antd';
 import { useSelector } from 'react-redux';
-import Router from 'next/router';
 import LoginForm from '../containers/LoginForm';
 import UserProfile from '../containers/UserProfile';
 
@@ -24,13 +23,8 @@ const AppLayout = ({ children }) => { //children은 props임
           />
         </Menu.Item>
       </Menu>
-      <Row gutter={8}>
-        <Col xs={24} md={6}>
-          {me//로그인한 상황이면 userprofile을 보여주고 아니면 loginform
-            ? <UserProfile />
-            : <LoginForm />}
-        </Col>
-        <Col xs={24} md={12}>
+      <Row >
+        <Col xs={24} >
           {children}
         </Col>
       </Row>

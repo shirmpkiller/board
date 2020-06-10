@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Checkbox, Form, Input, Row, Col } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import Router from 'next/router';
 import { SIGN_UP_REQUEST } from '../reducers/user';
@@ -72,7 +72,9 @@ const Signup = () => {
 
   return (
     <>
-      <Form onSubmit={onSubmit} style={{ padding: 10 }}>
+    <Row>
+      <Col  xs={{ span: 24 }} md={{ span: 12, offset: 6 }}>
+       <Form onSubmit={onSubmit} style={{ padding: 10 }}>
         <div>
           <label htmlFor="user-id">아이디</label>
           <br />
@@ -109,6 +111,8 @@ const Signup = () => {
           /*html에 있는 타입프롭을 쓰려면 htmlType 원래는 button type='submit' */>가입하기</Button>
         </div>
       </Form>
+      </Col>
+    </Row>
     </>
   );
 };

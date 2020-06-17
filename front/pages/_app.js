@@ -83,8 +83,8 @@ NodeBird.getInitialProps = async (context) => {//getInitialProps는 pages 안에
   /*
     클라이언트 환경일때는 브라우저가 쿠키 넣어주고 서버 환경일때는 쿠키를 직접 넣어줘야함
     */
-  axios.defaults.headers.Cookie = ''; //axios에다 쿠키데이터를 직접 심어줄 수 있도록 일단 정의 바로 밑 if절에서 cookie저장할것임
   if (ctx.isServer && cookie) { //서버 환경이고 쿠키도 있으면//ctx안에 isServer가 있음
+    axios.defaults.headers.Cookie = ''; //axios에다 쿠키데이터를 직접 심어줄 수 있도록 일단 정의 바로 밑 if절에서 cookie저장할것임
     axios.defaults.headers.Cookie = cookie;//axios에다 cookie를 기본으로 심어주게 할 수 있음
   }
   if (!state.user.me) { //내가 없으면 불러옴//원래 applayout component에 있었지만 getInitialprops는 페이지에만 쓸 수 있어서 app.js로 옮김

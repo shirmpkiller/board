@@ -7,6 +7,7 @@ const sequelize = new Sequelize(config.database, config.username, config.passwor
 //config를 불러와서 sequelize를 설정
 
 db.User = require('./user')(sequelize, Sequelize);
+db.Post = require('./post')(sequelize, Sequelize);
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {

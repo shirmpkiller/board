@@ -1,10 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
-import { Col, Input, Menu, Row } from 'antd';
+import { Col, Input, Menu, Row} from 'antd';
 import { useSelector } from 'react-redux';
-import LoginForm from '../containers/LoginForm';
-import UserProfile from '../containers/UserProfile';
 
 const AppLayout = ({ children }) => { //children은 props임
   const { me } = useSelector(state => state.user);
@@ -16,6 +14,7 @@ const AppLayout = ({ children }) => { //children은 props임
       <Menu mode="horizontal">
         <Menu.Item key="home"/*key가 일종의 반복문 역할을 해서 넣는 것같음 */><Link href="/"><a>Home</a></Link></Menu.Item>
         <Menu.Item key="profile"><Link href="/profile"><a>프로필</a></Link></Menu.Item>
+        <Menu.Item key="freeboard"><Link href="/freeboard"><a>자유게시판</a></Link></Menu.Item>
         <Menu.Item key="mail">
           <Input.Search
             enterButton

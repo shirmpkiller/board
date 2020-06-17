@@ -76,7 +76,7 @@ router.post('/login', (req, res, next) => { // POST /api/user/login
          
           attributes: ['id', 'nickname', 'userId'],//사용자 정보는 비밀번호만 빼고 보냄
         });
-        console.log(fullUser);
+   //     console.log(fullUser);
         return res.json(fullUser);//사용자정보 보내기
       } catch (e) {
         next(e);

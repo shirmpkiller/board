@@ -9,6 +9,8 @@ const passport = require('passport');//세션 쿠키 보내주는것 자동화
 const passportConfig = require('./passport');
 const db = require('./models');
 const userAPIRouter = require('./routes/user');
+const postAPIRouter = require('./routes/post');
+const postsAPIRouter = require('./routes/posts');
 
 dotenv.config(); //dotenv를 실행시키면 .env파일안에것을 읽어들여와서 process.env에 넣어줌
 const app = express();
@@ -41,6 +43,8 @@ app.use(passport.session());//passport session은 express session보다 아래 �
 
 // API는 다른 서비스가 내 서비스의 기능을 실행할 수 있게 열어둔 창구
 app.use('/api/user', userAPIRouter);
+app.use('/api/post', postAPIRouter);
+app.use('/api/posts', postsAPIRouter);
 
 app.listen(3065, () => {
   console.log('server is running on http://localhost:3065');

@@ -15,6 +15,7 @@ import {
   SIGN_UP_FAILURE,
   SIGN_UP_REQUEST,
   SIGN_UP_SUCCESS,
+  
 } from '../reducers/user';
 
 function logInAPI(loginData) {

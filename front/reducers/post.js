@@ -6,15 +6,27 @@ export const initialState = {
     addPostErrorReason: '', // 포스트 업로드 실패 사유
     isAddingPost: false, // 포스트 업로드 중
     postAdded: false, // 포스트 업로드 성공
-    singlePost: null,
+    isAddingComment: false,
+  addCommentErrorReason: '',
+  commentAdded: false,
+    singlePost: ["asd"],
   };
   export const LOAD_MAIN_POSTS_REQUEST = 'LOAD_MAIN_POSTS_REQUEST';
   export const LOAD_MAIN_POSTS_SUCCESS = 'LOAD_MAIN_POSTS_SUCCESS';
   export const LOAD_MAIN_POSTS_FAILURE = 'LOAD_MAIN_POSTS_FAILURE';
   
+  export const LOAD_POST_REQUEST = 'LOAD_POST_REQUEST';
+export const LOAD_POST_SUCCESS = 'LOAD_POST_SUCCESS';
+export const LOAD_POST_FAILURE = 'LOAD_POST_FAILURE';
+
 export const ADD_POST_REQUEST = 'ADD_POST_REQUEST';
 export const ADD_POST_SUCCESS = 'ADD_POST_SUCCESS';
 export const ADD_POST_FAILURE = 'ADD_POST_FAILURE';
+
+export const ADD_COMMENT_REQUEST = 'ADD_COMMENT_REQUEST';
+export const ADD_COMMENT_SUCCESS = 'ADD_COMMENT_SUCCESS';
+export const ADD_COMMENT_FAILURE = 'ADD_COMMENT_FAILURE';
+
 
 export default (state = initialState, action) => {
     return produce(state, (draft) => {//immer 사용하기 위한 줄 /더이상 불변성 유지 안해도됨
@@ -54,6 +66,28 @@ export default (state = initialState, action) => {
         break;
       }
       case LOAD_MAIN_POSTS_FAILURE: {
+        break;
+      }
+      case LOAD_POST_SUCCESS: {
+        draft.singlePost = action.data;
+        break;
+      }
+      case ADD_COMMENT_REQUEST: {
+        draft.isAddingComment = true;
+        draft.addCommentErrorReason = '';
+        draft.commentAdded = false;
+        break;
+      }
+      case ADD_COMMENT_SUCCESS: {
+        //const postIndex = draft.mainPosts.findIndex(v => v.id === action.data.postId);
+        draft.singlePost.Comments.push(action.data.comment); //추가하는 건 unshift 또는 push
+        draft.isAddingComment = false;
+        draft.commentAdded = true;
+        break;
+      }
+      case ADD_COMMENT_FAILURE: {
+        draft.isAddingComment = false;
+        draft.addingPostErrorReason = action.error;
         break;
       }
         default: {

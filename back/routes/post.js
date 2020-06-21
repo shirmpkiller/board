@@ -44,4 +44,57 @@ console.log(req.body.postContent)
   }
 });
 
+
+router.get('/:id', async (req, res, next) => {
+  try {
+    const post = await db.Post.findOne({
+      where: { id: req.params.id },
+      include: [{ //게시글 작성자랑 이미지 불러오기
+        model: db.User, 
+        attributes: ['id', 'nickname']
+      },{
+        model:db.Comment,
+        order: [['createdAt', 'ASC']], //생성된 시간이 오름차순으로
+        include: [{ //게시글 작성자랑 이미지 불러오기
+          model: db.User, 
+          attributes: ['id', 'nickname']
+        }]
+      }],
+    });
+    res.json(post);
+  } catch (e) {
+    console.error(e);
+    next(e);
+  }
+});
+
+router.post('/:id/comment', isLoggedIn, async (req, res, next) => { // POST /api/post/1000000/comment
+  try {
+    const post = await db.Post.findOne({ where: { id: req.params.id } });
+    if (!post) {
+      return res.status(404).send('포스트가 존재하지 않습니다.');
+    }
+    console.log(post.id)
+    const newComment = await db.Comment.create({
+      postId: post.id,
+      userId: req.user.id,
+      content: req.body.content,
+    });
+    await post.addComment(newComment.id);//시퀄라이즈에서 add시리즈를 자동으로 추가해주기 때문에 가능
+    const comment = await db.Comment.findOne({
+      where: {
+        id: newComment.id,
+      },
+      include: [{
+        model: db.User,
+        attributes: ['id', 'nickname'],
+      }],
+    });
+    return res.json(comment);
+  } catch (e) {
+    console.error(e);
+    return next(e);
+  }
+});
+
 module.exports = router;

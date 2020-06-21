@@ -3,9 +3,7 @@ import { Avatar, Button, Card, Comment, Form, Icon, Input, List, Popover } from 
 import Link from 'next/link';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  REMOVE_POST_REQUEST,
-} from '../reducers/post';
+
 
 const PostCard = ({ post }) => {//post는 props임
   const { me } = useSelector(state => state.user);
@@ -17,11 +15,16 @@ const PostCard = ({ post }) => {//post는 props임
       data: userId,
     });
   });*/
-
+  
 return (
-    <Card style={{ marginTop: 16 }} type="inner" title={post.title} extra={<a href="#">More</a>}>
-       {post.content}
-    </Card>
+    <Link href={{ pathname: '/post', query: { id: post.id} }} as={`/post/${post.id}`}>
+    <a> 
+        <Card style={{ marginTop: 16 }} type="inner" title={post.title} >
+            {post.content}
+        </Card>
+    </a>
+    </Link>
+   
   );
 };
 

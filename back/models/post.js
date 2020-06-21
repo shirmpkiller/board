@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       timestamps : true
     });
     Post.associate = (db) => {
+      db.Post.hasMany(db.Comment,  { foreignKey:'postId', sourceKey:'id' });
       db.Post.belongsTo(db.User, { foreignKey:'userId', targetKey:'id' }); // 테이블에 UserId 컬럼이 생겨요
     };
     return Post;

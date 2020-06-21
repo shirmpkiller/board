@@ -1,7 +1,7 @@
 /*helmet을 서버사이드 렌더링 하기 위해 특수파일 _document.js를 만듦 */
 /*head나 body를 직접 조작하기 위해서 _document.js 파일을 만듦 */
 import React from 'react';
-import Helmet from 'react-helmet';
+import {Helmet} from 'react-helmet';
 import PropTypes from 'prop-types';
 import Document, { Main, NextScript } from 'next/document';//nextscripts는 next 서버구동에 필요한 스크립트들을 모아둔것
 import { ServerStyleSheet } from 'styled-components';//styled-components 서버사이드렌더링 위해 ServerStyleSheet 불러옴

@@ -9,7 +9,6 @@ const Freeboard =() => {
 const dispatch = useDispatch();
 const { me } = useSelector(state => state.user);
 const { mainPosts } = useSelector(state => state.post);
-
 const [postFormOpened, setPostFormOpened] = useState(false)
 const [postTitle, setPostTitle] = useState("")
 const [postContent, setPostContent] = useState("")
@@ -78,11 +77,14 @@ const onTogglePost = useCallback(() => {
                     </Form>
                 </div>
            : 
-                 <div style={{float: 'left'}}>
+             <div>
+                 <Input placeholder="글을 작성하세요" disabled={true} style={{cursor: 'pointer'}}/>
+                 <div style={{float: 'right'}}>
                     <Button type="primary" onClick={onTogglePost}>
                    {buttonText}
                     </Button>
                  </div>
+                </div>
                }
                <div style={{clear:'both'}}></div>
                 <div>

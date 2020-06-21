@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
 
   User.associate = (db) => {
     db.User.hasMany(db.Post, { foreignKey:'userId', sourceKey:'id' }); 
+    db.User.hasMany(db.Comment, { foreignKey:'userId', sourceKey:'id' });
   };
   return User;
 };

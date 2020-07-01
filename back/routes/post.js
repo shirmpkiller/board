@@ -54,7 +54,8 @@ router.get('/:id', async (req, res, next) => {
         attributes: ['id', 'nickname']
       },{
         model:db.Comment,
-        order: [['createdAt', 'ASC']], //생성된 시간이 오름차순으로
+        attributes:['id','content','createdAt','userId','postId'],
+        //order: [['createdAt', 'ASC']], //생성된 시간이 오름차순으로
         include: [{ //게시글 작성자랑 이미지 불러오기
           model: db.User, 
           attributes: ['id', 'nickname']

@@ -1,5 +1,5 @@
 import React, {useState, useCallback } from 'react';
-import { Button, List, Card, Icon, Input, Form, Row, Col, } from 'antd';
+import { Button, List, Card, Icon, Input, Form, Row, Col, Divider} from 'antd';
 import {ArrowUpOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { ADD_POST_REQUEST, LOAD_MAIN_POSTS_REQUEST } from '../reducers/post';
@@ -12,7 +12,7 @@ const { mainPosts } = useSelector(state => state.post);
 const [postFormOpened, setPostFormOpened] = useState(false)
 const [postTitle, setPostTitle] = useState("")
 const [postContent, setPostContent] = useState("")
-const [buttonText, setButtonText] = useState("글작성")
+const [buttonText, setButtonText] = useState("글 작성")
 
 const onSubmitForm = useCallback((e) => {
     e.preventDefault();
@@ -25,9 +25,7 @@ const onSubmitForm = useCallback((e) => {
     const formData = new FormData();
     formData.append('postTitle', postTitle);
     formData.append('postContent', postContent);
-    for (var key of formData.entries()) {
-      console.log(key[0] + ', ' + key[1]);
-  }
+  
     dispatch({
       type: ADD_POST_REQUEST,
       data: formData,
@@ -50,17 +48,18 @@ const onTogglePost = useCallback(() => {
     {
         setButtonText("접기")
     }else{
-        setButtonText("글작성")
+        setButtonText("글 작성")
     }
    // console.log(postFormOpened)
   }, [postFormOpened]);
 
  return (
-     <div style= {{marginTop: 10}}>
+     <div style= {{overflow:'hidden'}}>
        <Row gutter={8} >
             <Col xs={{span:22, offset:1}} md={{span:18,offset:2}} >
+            <Divider orientation="left">자유게시판</Divider>
                {postFormOpened ? 
-                <div style={{marginBottom : 10}}> 
+                <div style={{marginBottom : 10},{marginTop: 10}}> 
                     <Form encType="multipart/form-data" onSubmit={onSubmitForm}>
                         <div style= {{marginBottom:10}}>
                           <Input placeholder="제목을 작성하세요" value={postTitle} onChange={onChangePostTitle} />
@@ -77,13 +76,9 @@ const onTogglePost = useCallback(() => {
                     </Form>
                 </div>
            : 
-             <div>
-                 <Input placeholder="글을 작성하세요" disabled={true} style={{cursor: 'pointer'}}/>
-                 <div style={{float: 'right'}}>
-                    <Button type="primary" onClick={onTogglePost}>
-                   {buttonText}
-                    </Button>
-                 </div>
+             <div style={{marginTop: 10}}>
+
+                 <Button block onClick={onTogglePost}>{buttonText}</Button>
                 </div>
                }
                <div style={{clear:'both'}}></div>

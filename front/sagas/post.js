@@ -11,6 +11,12 @@ import {
   LOAD_MAIN_POSTS_REQUEST,
   LOAD_MAIN_POSTS_SUCCESS,
   LOAD_POST_SUCCESS, LOAD_POST_FAILURE, LOAD_POST_REQUEST,
+  LOAD_USER_POSTS_FAILURE,
+  LOAD_USER_POSTS_REQUEST,
+  LOAD_USER_POSTS_SUCCESS,
+  LOAD_USER_COMMENTPOSTS_FAILURE,
+  LOAD_USER_COMMENTPOSTS_REQUEST,
+  LOAD_USER_COMMENTPOSTS_SUCCESS,
 } from '../reducers/post';
 //mport { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from '../reducers/user';
 
@@ -129,11 +135,59 @@ function* watchAddComment() {
   yield takeLatest(ADD_COMMENT_REQUEST, addComment);
 }
 
+function loadUserPostsAPI(id) {
+  return axios.get(`/user/${id || 0}/posts`);
+}
+
+function* loadUserPosts(action) {
+  try {
+    const result = yield call(loadUserPostsAPI, action.data);
+    yield put({
+      type: LOAD_USER_POSTS_SUCCESS,
+      data: result.data,
+    });
+  } catch (e) {
+    yield put({
+      type: LOAD_USER_POSTS_FAILURE,
+      error: e,
+    });
+  }
+}
+
+function* watchLoadUserPosts() {
+  yield takeLatest(LOAD_USER_POSTS_REQUEST, loadUserPosts);
+}
+
+function loadUserCommentPostsAPI(id) {
+  return axios.get(`/user/${id || 0}/commentposts`);
+}
+
+function* loadUserCommentPosts(action) {
+  try {
+    const result = yield call(loadUserCommentPostsAPI, action.data);
+    yield put({
+      type: LOAD_USER_COMMENTPOSTS_SUCCESS,
+      data: result.data,
+    });
+  } catch (e) {
+    yield put({
+      type: LOAD_USER_COMMENTPOSTS_FAILURE,
+      error: e,
+    });
+  }
+}
+
+function* watchLoadUserCommentPosts() {
+  yield takeLatest(LOAD_USER_COMMENTPOSTS_REQUEST, loadUserCommentPosts);
+}
+
 export default function* postSaga() {
   yield all([
     fork(watchAddPost),
     fork(watchLoadMainPosts),
     fork(watchLoadPost),
     fork(watchAddComment),
+    fork(watchLoadUserPosts),
+    fork(watchLoadUserCommentPosts)
   ]);
 }

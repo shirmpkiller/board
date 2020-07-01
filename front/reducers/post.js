@@ -10,6 +10,7 @@ export const initialState = {
   addCommentErrorReason: '',
   commentAdded: false,
     singlePost: ["asd"],
+    commentList:[]
   };
   export const LOAD_MAIN_POSTS_REQUEST = 'LOAD_MAIN_POSTS_REQUEST';
   export const LOAD_MAIN_POSTS_SUCCESS = 'LOAD_MAIN_POSTS_SUCCESS';
@@ -18,6 +19,14 @@ export const initialState = {
   export const LOAD_POST_REQUEST = 'LOAD_POST_REQUEST';
 export const LOAD_POST_SUCCESS = 'LOAD_POST_SUCCESS';
 export const LOAD_POST_FAILURE = 'LOAD_POST_FAILURE';
+
+export const LOAD_USER_POSTS_REQUEST = 'LOAD_USER_POSTS_REQUEST';
+export const LOAD_USER_POSTS_SUCCESS = 'LOAD_USER_POSTS_SUCCESS';
+export const LOAD_USER_POSTS_FAILURE = 'LOAD_USER_POSTS_FAILURE';
+
+export const LOAD_USER_COMMENTPOSTS_REQUEST = 'LOAD_USER_COMMENTPOSTS_REQUEST';
+export const LOAD_USER_COMMENTPOSTS_SUCCESS = 'LOAD_USER_COMMENTPOSTS_SUCCESS';
+export const LOAD_USER_COMMENTPOSTS_FAILURE = 'LOAD_USER_COMMENTPOSTS_FAILURE';
 
 export const ADD_POST_REQUEST = 'ADD_POST_REQUEST';
 export const ADD_POST_SUCCESS = 'ADD_POST_SUCCESS';
@@ -53,19 +62,34 @@ export default (state = initialState, action) => {
           draft.addPostErrorReason = action.error;
           break;
         }
-        case LOAD_MAIN_POSTS_REQUEST: {
+        case LOAD_MAIN_POSTS_REQUEST: 
+        case LOAD_USER_POSTS_REQUEST: {
         draft.mainPosts = !action.lastId ? [] : draft.mainPosts; //lastId가 아예 없을때까지 포함해서 설정
         //draft.hasMorePost = action.lastId ? draft.hasMorePost : true; //처음 불러오는거(lastId는 0)이면 true(스크롤기능활성) 더 불러오고있는상태면 기존상태유지
         break;
       }
-      case LOAD_MAIN_POSTS_SUCCESS:{
+      case LOAD_MAIN_POSTS_SUCCESS:
+        case LOAD_USER_POSTS_SUCCESS:{
         action.data.forEach((d) => {
           draft.mainPosts.push(d);
         });
        // draft.hasMorePost = action.data.length === 10; //스크롤할게 더 있는지 판단하는 부분
         break;
       }
-      case LOAD_MAIN_POSTS_FAILURE: {
+      case LOAD_USER_COMMENTPOSTS_REQUEST: {
+        draft.commentList = !action.lastId ? [] : draft.mainPosts; //lastId가 아예 없을때까지 포함해서 설정
+        break;
+      }
+      case LOAD_USER_COMMENTPOSTS_SUCCESS:{
+        action.data.forEach((d) => {
+          draft.commentList.push(d);
+      });
+      break;
+    }
+
+      case LOAD_MAIN_POSTS_FAILURE:
+        case LOAD_USER_POSTS_FAILURE: 
+        case LOAD_USER_COMMENTPOSTS_FAILURE : {
         break;
       }
       case LOAD_POST_SUCCESS: {

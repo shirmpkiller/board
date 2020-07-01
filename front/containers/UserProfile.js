@@ -1,9 +1,9 @@
-import { Avatar, Button, Card } from 'antd';
+import { Avatar, Button, Card,List } from 'antd';
 import React, { useCallback } from 'react';
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { LOG_OUT_REQUEST } from '../reducers/user';
-
+import {NewButton} from '../components/styles/userprofileStyle';
 const UserProfile = () => {
   const { me } = useSelector(state => state.user);
   const dispatch = useDispatch();
@@ -15,24 +15,8 @@ const UserProfile = () => {
   }, []);
 
   return (
+    <>
     <Card
-      actions={[
-        <Link href="/profile" key="twit"/*key는 항상 젤 상위 */>
-          <a>
-            <div>짹짹<br /></div>
-          </a>
-        </Link>,
-        <Link href="/profile" key="following">
-          <a>
-            <div>팔로잉<br /></div>
-          </a>
-        </Link>,
-        <Link href="/profile" key="follower">
-          <a>
-            <div>팔로워<br /></div>
-          </a>
-        </Link>,
-      ]}
     >
       <Card.Meta
         avatar={<Avatar>{me.nickname[0]}</Avatar>}
@@ -40,6 +24,14 @@ const UserProfile = () => {
       />
       <Button onClick={onLogout}>로그아웃</Button>
     </Card>
+    <Link href={{ pathname: '/user', query: { id: me.id } }}
+      as={`/user/${me.id}`}>
+        <a> <NewButton block>내가 쓴 글</NewButton></a>
+      </Link>
+    <Link href={{ pathname: '/usercomment', query: { id: me.id } }}
+      as={`/usercomment/${me.id}`}><a> <NewButton block>댓글 단 글</NewButton></a></Link>
+    <Link href="/signup"><a> <NewButton block>스크랩 한 글</NewButton></a></Link>
+</>
   );
 };
 

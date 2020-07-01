@@ -51,6 +51,52 @@ router.get('/:id', async (req, res, next) => { // 남의 정보 가져오는 것
   }
 });
 
+
+router.get('/:id/posts', async (req, res, next) => {
+  try {
+    const posts = await db.Post.findAll({
+      where: {
+        userId: parseInt(req.params.id, 10) || (req.user && req.user.id) || 0,
+        //남의 아이디 들어있으면 그 사람 아이디 들고오고 아이디가 0이면 내 게시물이다라는 걸 뜻함
+        /*getInitalProps에서 state.user.me가 null일때 나로 간주하기 위해서 했던거에 따라서 parseInt(req.params.id)가
+         */
+      },
+      include: [{
+        model: db.User,
+        attributes: ['id', 'nickname'],
+      }],
+    });
+    res.json(posts);
+  } catch (e) {
+    console.error(e);
+    next(e);
+  }
+});
+
+
+router.get('/:id/commentposts', async (req, res, next) => {
+  try {
+    const comments = await db.Comment.findAll({
+      where: {
+        userId: parseInt(req.params.id, 10) || (req.user && req.user.id) || 0,
+        //남의 아이디 들어있으면 그 사람 아이디 들고오고 아이디가 0이면 내 게시물이다라는 걸 뜻함
+        /*getInitalProps에서 state.user.me가 null일때 나로 간주하기 위해서 했던거에 따라서 parseInt(req.params.id)가
+         */
+      },
+      include: [{
+        model: db.User,
+        attributes: ['id', 'nickname'],
+      },{
+        model: db.Post,
+      }],
+    });
+    res.json(comments);
+  } catch (e) {
+    console.error(e);
+    next(e);
+  }
+});
+
 router.post('/logout', (req, res) => { // /api/user/logout
   req.logout();
   req.session.destroy();

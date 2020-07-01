@@ -10,23 +10,12 @@ import { LOAD_POST_REQUEST } from '../reducers/post';
 
 
 const Post =( id ) =>{
+
     const { singlePost } = useSelector(state => state.post);
- //console.log(singlePost)
+ console.log(singlePost.User)
     return(
         <>
-        <Helmet /*head 태그를 만들어서 넣어줌 , 서버 사이드 렌더링까지 해줘야함*/
-          title={`${singlePost.User.nickname}님의 글`}
-          description={singlePost.content}
-          meta={[{/*meta태그는 여러개 될수 있어서 배열 */
-            name: 'description', content: singlePost.content,
-          }, {
-            property: 'og:title', content: `${singlePost.User.nickname}님의 게시글`, //og는 opengraph
-          }, {
-            property: 'og:description', content: singlePost.content,
-          }, {
-            property: 'og:url', content: `http://localhost:3000/post/${id}`,
-          }]}
-        />
+       
         <Row guttter={8}>
           <Col xs={{span:22, offset:1}} md={{span:18,offset:2}}>
             <PostCard  post={singlePost} />

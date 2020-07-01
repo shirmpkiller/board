@@ -29,11 +29,11 @@ return (
 };
 
 PostCard.propTypes = {
-  post: PropTypes.shape({//객체 상세정보를 주려면 shape
+  post:PropTypes.arrayOf( PropTypes.shape({//객체 상세정보를 주려면 shape
     User: PropTypes.object,
     content: PropTypes.string,
     createdAt: PropTypes.string,
-  }).isRequired,
+  })).isRequired,
 };
 
 export default PostCard;

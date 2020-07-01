@@ -1,5 +1,7 @@
 import React, { useEffect, useCallback, useState} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+//import Moment from 'react-moment';
+import moment from 'moment';
 import Link from 'next/link';
 import { Avatar, Button, Card, Comment, Form, Icon, Input, List, Popover } from 'antd';
 
@@ -56,6 +58,9 @@ const PostComment = () =>{
                             <a><Avatar>{item.User.nickname[0]}</Avatar></a>
                             </Link>
                         )}
+                        datetime=  {moment(moment()).isBefore(moment(item.createdAt).add(1,'days'),'date') ? moment(item.createdAt).format('hh:mm a') 
+                      : moment(item.createdAt).format('YYYY-MM-DD')}
+                   
                         content={item.content}
                         />
                     </li>

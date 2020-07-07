@@ -32,16 +32,15 @@ app.prepare().then(() => {
    server.get('/post/:id', (req, res) => {
     return app.render(req, res, '/post', { id: req.params.id });
   });
-/*
-  server.get('/hashtag/:tag', (req, res) => {
-    return app.render(req, res, '/hashtag', { tag: req.params.tag });
+
+  server.get('/search/:keyword', (req, res) => {
+    return app.render(req, res, '/search', { keyword: req.params.keyword });
   });
 
-*/
- 
   server.get('/user/:id', (req, res) => {
     return app.render(req, res, '/user', { id: req.params.id });
   });
+  
   server.get('/usercomment/:id', (req, res) => {
     return app.render(req, res, '/usercomment', { id: req.params.id });
   });

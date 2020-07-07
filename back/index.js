@@ -11,7 +11,7 @@ const db = require('./models');
 const userAPIRouter = require('./routes/user');
 const postAPIRouter = require('./routes/post');
 const postsAPIRouter = require('./routes/posts');
-
+const searchAPIRouter = require('./routes/search');
 dotenv.config(); //dotenv를 실행시키면 .env파일안에것을 읽어들여와서 process.env에 넣어줌
 const app = express();
 db.sequelize.sync();//알아서 테이블 생성
@@ -45,6 +45,7 @@ app.use(passport.session());//passport session은 express session보다 아래 �
 app.use('/api/user', userAPIRouter);
 app.use('/api/post', postAPIRouter);
 app.use('/api/posts', postsAPIRouter);
+app.use('/api/search', searchAPIRouter);
 
 app.listen(3065, () => {
   console.log('server is running on http://localhost:3065');

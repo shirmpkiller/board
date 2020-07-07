@@ -1,18 +1,40 @@
-import React, {useState, useCallback } from 'react';
+import React, {useState, useCallback,useEffect,useRef } from 'react';
 import { Button, List, Card, Icon, Input, Form, Row, Col, Divider} from 'antd';
 import {ArrowUpOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { ADD_POST_REQUEST, LOAD_MAIN_POSTS_REQUEST } from '../reducers/post';
+import { ADD_POST_REQUEST, LOAD_MAIN_POSTS_REQUEST,LOAD_SEARCH_POSTS_REQUEST } from '../reducers/post';
 import PostCard from '../containers/PostCard';
 
 const Freeboard =() => {
 const dispatch = useDispatch();
+const countRef = useRef([]);
+
 const { me } = useSelector(state => state.user);
-const { mainPosts } = useSelector(state => state.post);
+const { mainPosts,postRemoved,hasMorePosts } = useSelector(state => state.post);
 const [postFormOpened, setPostFormOpened] = useState(false)
 const [postTitle, setPostTitle] = useState("")
 const [postContent, setPostContent] = useState("")
 const [buttonText, setButtonText] = useState("글 작성")
+
+// useEffect(() => {
+//   if (postRemoved) {
+//     postRemoved=false
+//   }
+// }, []);
+const loadMorePosts = useCallback(() => {
+    if (hasMorePosts) {
+      const lastId = mainPosts[mainPosts.length - 1].id;//스크롤 도중 새로운 게 등록될수있어서 offset대신 lastId를 넣어줌
+      console.log(lastId);
+      if (!countRef.current.includes(lastId)) {//한번 보낸 lastid는 다시 보내지 않게(같은 요청 반복 방지)
+      dispatch({
+        type: LOAD_SEARCH_POSTS_REQUEST,
+        lastId: mainPosts[mainPosts.length - 1] && mainPosts[mainPosts.length - 1].id
+      });
+      countRef.current.push(lastId);//coutFef에 lastId를 기억해둔다
+    }
+}
+}, [hasMorePosts, mainPosts.length]);
+
 
 const onSubmitForm = useCallback((e) => {
     e.preventDefault();
@@ -88,6 +110,7 @@ const onTogglePost = useCallback(() => {
                       <PostCard key={c.id} post={c} />
                     );
                   })}
+                  {hasMorePosts && <Button style={{ width: '100%' }} onClick={loadMorePosts}>더 보기</Button>}
                 </div>
             </Col>
           </Row>

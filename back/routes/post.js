@@ -69,6 +69,21 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
+
+router.delete('/:id', isLoggedIn, async (req, res, next) => {
+  try { //에러 처리 안하면 서버 죽을 수 도 있음
+    const post = await db.Post.findOne({ where: { id: req.params.id } });//기본적으로 req.params.id에 parseInt안해줘도 됨
+    if (!post) {//게시글이 있는지 검사
+      return res.status(404).send('포스트가 존재하지 않습니다.');
+    }
+    await db.Post.destroy({ where: { id: req.params.id } }); //지우는 건 destroy
+    res.send(req.params.id);
+  } catch (e) {
+    console.error(e);
+    next(e);
+  }
+});
+
 router.post('/:id/comment', isLoggedIn, async (req, res, next) => { // POST /api/post/1000000/comment
   try {
     const post = await db.Post.findOne({ where: { id: req.params.id } });

@@ -17,6 +17,12 @@ import {
   LOAD_USER_COMMENTPOSTS_FAILURE,
   LOAD_USER_COMMENTPOSTS_REQUEST,
   LOAD_USER_COMMENTPOSTS_SUCCESS,
+  REMOVE_POST_FAILURE,
+  REMOVE_POST_REQUEST,
+  REMOVE_POST_SUCCESS,
+  LOAD_SEARCH_POSTS_FAILURE,
+  LOAD_SEARCH_POSTS_REQUEST,
+  LOAD_SEARCH_POSTS_SUCCESS,
 } from '../reducers/post';
 //mport { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from '../reducers/user';
 
@@ -51,7 +57,7 @@ function* addPost(action) {
 }
 
 function* watchAddPost() {
-  yield takeLatest(ADD_POST_REQUEST, addPost); 
+  yield throttle(1000,ADD_POST_REQUEST, addPost); 
 }
 
 function loadMainPostsAPI(lastId = 0, limit = 10) {//lastId가 0이면 처음부터 불러오는것
@@ -181,6 +187,56 @@ function* watchLoadUserCommentPosts() {
   yield takeLatest(LOAD_USER_COMMENTPOSTS_REQUEST, loadUserCommentPosts);
 }
 
+function removePostAPI(postId) {
+  return axios.delete(`/post/${postId}`, {
+    withCredentials: true,
+  });
+}
+
+function* removePost(action) {
+  try {
+    const result = yield call(removePostAPI, action.data);
+    yield put({
+      type: REMOVE_POST_SUCCESS,
+      data: result.data,
+    });
+  } catch (e) {
+    console.error(e);
+    yield put({
+      type: REMOVE_POST_FAILURE,
+      error: e,
+    });
+  }
+}
+
+function* watchRemovePost() {
+  yield takeLatest(REMOVE_POST_REQUEST, removePost);
+}
+
+function loadSearchPostsAPI(keyword, lastId) {
+  if(keyword){ return axios.get(`/search/${encodeURIComponent(keyword)}?lastId=${lastId}&limit=10`);}
+  else { return axios.get(`/search/?lastId=${lastId}&limit=10`);}
+} //한글, 특수문자는 줄때는 encode, 받을 때는 decode
+
+function* loadSearchPosts(action) {
+  try {
+    const result = yield call(loadSearchPostsAPI, action.data, action.lastId);
+    yield put({
+      type: LOAD_SEARCH_POSTS_SUCCESS,
+      data: result.data,
+    });
+  } catch (e) {
+    yield put({
+      type: LOAD_SEARCH_POSTS_FAILURE,
+      error: e,
+    });
+  }
+}
+
+function* watchLoadSearchPosts() {
+  yield takeLatest(LOAD_SEARCH_POSTS_REQUEST, loadSearchPosts);
+}
+
 export default function* postSaga() {
   yield all([
     fork(watchAddPost),
@@ -188,6 +244,8 @@ export default function* postSaga() {
     fork(watchLoadPost),
     fork(watchAddComment),
     fork(watchLoadUserPosts),
-    fork(watchLoadUserCommentPosts)
+    fork(watchLoadUserCommentPosts),
+    fork(watchRemovePost),
+    fork(watchLoadSearchPosts),
   ]);
 }

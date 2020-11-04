@@ -8,6 +8,7 @@ import {NewButton} from '../components/styles/userprofileStyle';
 
 import {
     ADD_COMMENT_REQUEST,
+    REMOVE_COMMENT_REQUEST,
   } from '../reducers/post';
 
 const PostComment = () =>{
@@ -16,9 +17,7 @@ const PostComment = () =>{
     const { me } = useSelector(state => state.user);
     const { commentAdded, isAddingComment, singlePost } = useSelector(state => state.post);
     const dispatch = useDispatch();
-    console.log(singlePost.id)
-      const onSubmitComment = useCallback((e) => {
-        e.preventDefault();
+      const onSubmitComment = useCallback(() => {
         if (!me) {
           return alert('로그인이 필요합니다.');
         }
@@ -38,11 +37,17 @@ const PostComment = () =>{
       const onChangeCommentText = useCallback((e) => {
         setCommentText(e.target.value);
       }, []);    
-
+      const deleteCommentFunc = (commentId)=>()=>{
+        console.log(commentId);
+          return dispatch({
+          type: REMOVE_COMMENT_REQUEST,
+          data: commentId,
+        });
+      };
     return (
         <div>
             <>
-                <Form onSubmit={onSubmitComment}>
+                <Form onFinish={onSubmitComment}>
                     <Input.TextArea rows={3} value={commentText} onChange={onChangeCommentText} />
                     <Button type="primary" htmlType="submit" loading={isAddingComment}>작성</Button>
                 </Form>
@@ -70,7 +75,7 @@ const PostComment = () =>{
                           / >
                       </Col>
                       <Col md={{span:1}}>
-                        <div style={{float: 'right'}}> <NewButton type='link' danger='true' >삭제</NewButton></div>
+                        <div style={{float: 'right'}}> <NewButton type='link' danger='true' onClick={deleteCommentFunc(item.id)}>삭제</NewButton></div>
                       </Col>
                       </Row>
                     </li>

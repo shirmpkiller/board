@@ -14,14 +14,18 @@ const postsAPIRouter = require('./routes/posts');
 const searchAPIRouter = require('./routes/search');
 dotenv.config(); //dotenv를 실행시키면 .env파일안에것을 읽어들여와서 process.env에 넣어줌
 const app = express();
-db.sequelize.sync();//알아서 테이블 생성
-passportConfig();//passport를 실행
+db.sequelize.sync()
+  .then(() => {
+    console.log('db 연결 성공');
+  })
+  .catch(console.error);
+  passportConfig();//passport를 실행
 //api는 다른 서비스가 내 서비스를 사용할 수 있게 열어둔 창구
 
 app.use(morgan('dev'));//요청을 로그 찍는것
 app.use('/', express.static('uploads'));
-app.use(cors({ //origin과 credentials를 true로 해야 쿠키 주고받는 것 허용
-  origin: true,
+app.use(cors({
+  origin: 'http://localhost:3060',
   credentials: true,
 }));
 app.use(express.json());//json형식의 본문을 처리하는 것
@@ -42,11 +46,11 @@ app.use(passport.session());//passport session은 express session보다 아래 �
 //미들웨어 간 의존관계 있을 시 순서 중요
 
 // API는 다른 서비스가 내 서비스의 기능을 실행할 수 있게 열어둔 창구
-app.use('/api/user', userAPIRouter);
-app.use('/api/post', postAPIRouter);
-app.use('/api/posts', postsAPIRouter);
-app.use('/api/search', searchAPIRouter);
+app.use('/user', userAPIRouter);
+app.use('/post', postAPIRouter);
+app.use('/posts', postsAPIRouter);
+app.use('/search', searchAPIRouter);
 
 app.listen(3065, () => {
-  console.log('server is running on http://localhost:3065');
+  console.log('서버 실행 중!  http://localhost:3065');
 });

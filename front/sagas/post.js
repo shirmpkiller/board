@@ -20,6 +20,9 @@ import {
   REMOVE_POST_FAILURE,
   REMOVE_POST_REQUEST,
   REMOVE_POST_SUCCESS,
+  REMOVE_COMMENT_FAILURE,
+  REMOVE_COMMENT_REQUEST,
+  REMOVE_COMMENT_SUCCESS,
   LOAD_SEARCH_POSTS_FAILURE,
   LOAD_SEARCH_POSTS_REQUEST,
   LOAD_SEARCH_POSTS_SUCCESS,
@@ -28,19 +31,16 @@ import {
 
 
 
-function addPostAPI(postData) {
-  for (var key of postData.entries()) {
-    console.log(key[0] + ', ' + key[1]);
-}
-  return axios.post('/post', postData, {
-    withCredentials: true,
-  });
+function addPostAPI(data) {
+  for (var key of data.keys()) {
+    console.log(key);
+    }
+    for (var value of data.values()) {
+      console.log(value);
+    }  return axios.post('/post', data);
 }
 
 function* addPost(action) {
-  for (var key of action.data.entries()) {
-    console.log(key[0] + ', ' + key[1]);
-}
   try {
     const result = yield call(addPostAPI, action.data);
     yield put({ // post reducer의 데이터를 수정
@@ -48,10 +48,11 @@ function* addPost(action) {
       data: result.data,
     });
     
-  } catch (e) {
+  } catch (err) {
+    console.error(err);
     yield put({
       type: ADD_POST_FAILURE,
-      error: e,
+      error: err.response.data,
     });
   }
 }
@@ -94,10 +95,12 @@ function loadPostAPI(postId) {
 function* loadPost(action) {
   try {
     const result = yield call(loadPostAPI, action.data);
+    console.log(result.data);
     yield put({
       type: LOAD_POST_SUCCESS,
       data: result.data,
     });
+    
   } catch (e) {
     console.error(e);
     yield put({
@@ -112,7 +115,6 @@ function* watchLoadPost() {
 }
 
 function addCommentAPI(data) {
-  console.log(data.postId)
   return axios.post(`/post/${data.postId}/comment`, { content: data.content }, {
     withCredentials: true,
   });
@@ -213,6 +215,32 @@ function* watchRemovePost() {
   yield takeLatest(REMOVE_POST_REQUEST, removePost);
 }
 
+function removeCommentAPI(commentId) {
+  return axios.delete(`/post/comment/${commentId}`, {
+    withCredentials: true,
+  });
+}
+
+function* removeComment(action) {
+  try {
+    const result = yield call(removeCommentAPI, action.data);
+    yield put({
+      type: REMOVE_COMMENT_SUCCESS,
+      data: result.data,
+    });
+  } catch (e) {
+    console.error(e);
+    yield put({
+      type: REMOVE_COMMENT_FAILURE,
+      error: e,
+    });
+  }
+}
+
+function* watchRemoveComment() {
+  yield takeLatest(REMOVE_COMMENT_REQUEST, removeComment);
+}
+
 function loadSearchPostsAPI(keyword, lastId) {
   if(keyword){ return axios.get(`/search/${encodeURIComponent(keyword)}?lastId=${lastId}&limit=10`);}
   else { return axios.get(`/search/?lastId=${lastId}&limit=10`);}
@@ -247,5 +275,6 @@ export default function* postSaga() {
     fork(watchLoadUserCommentPosts),
     fork(watchRemovePost),
     fork(watchLoadSearchPosts),
+    fork(watchRemoveComment),
   ]);
 }

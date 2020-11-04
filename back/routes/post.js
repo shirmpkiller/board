@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-
+const fs = require('fs');
 const db = require('../models');
 const { isLoggedIn } = require('./middleware');
 
@@ -20,14 +20,14 @@ const upload = multer({
   limits: { fileSize: 20 * 1024 * 1024 }, //limit라는 옵션으로 filesize를 20메가바이트로 제한했음
 });
 
-router.post('/', isLoggedIn, upload.none(), async (req, res, next) => { // POST /api/post
+router.post('/', isLoggedIn, upload.none(), async (req, res, next) => { // POST /post
 console.log(req.body.postTitle)
 console.log(req.body.postContent)
   try {//upload.none()은 이미지를 하나도 안올렸을 경우
     const newPost = await db.Post.create({
       title : req.body.postTitle,
-      content : req.body.postContent, //ex) '제로초 파이팅 #구독 #좋아요 눌러주세요'
-      userId: req.user.id,
+      content : req.body.postContent, 
+      UserId: req.user.id,
     });
 
     const fullPost = await db.Post.findOne({
@@ -84,6 +84,19 @@ router.delete('/:id', isLoggedIn, async (req, res, next) => {
   }
 });
 
+router.delete('/comment/:id', isLoggedIn, async (req, res, next) => {
+  try { //에러 처리 안하면 서버 죽을 수 도 있음
+    const comment = await db.Comment.findOne({ where: { id: req.params.id } });//기본적으로 req.params.id에 parseInt안해줘도 됨
+    if (!comment) {//게시글이 있는지 검사
+      return res.status(404).send('해당 댓글이 존재하지 않습니다.');
+    }
+    await db.Comment.destroy({ where: { id: req.params.id } }); //지우는 건 destroy
+    res.send(req.params.id);
+  } catch (e) {
+    console.error(e);
+    next(e);
+  }
+});
 router.post('/:id/comment', isLoggedIn, async (req, res, next) => { // POST /api/post/1000000/comment
   try {
     const post = await db.Post.findOne({ where: { id: req.params.id } });
@@ -92,8 +105,8 @@ router.post('/:id/comment', isLoggedIn, async (req, res, next) => { // POST /api
     }
     console.log(post.id)
     const newComment = await db.Comment.create({
-      postId: post.id,
-      userId: req.user.id,
+      PostId: post.id,
+      UserId: req.user.id,
       content: req.body.content,
     });
     await post.addComment(newComment.id);//시퀄라이즈에서 add시리즈를 자동으로 추가해주기 때문에 가능

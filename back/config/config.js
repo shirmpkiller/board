@@ -16,7 +16,6 @@ module.exports = {
     password: process.env.DB_PASSWORD,//db 비번
     database: 'board',//db 아름
     host: '127.0.0.1',
-    host: '127.0.0.1',
     dialect: 'mysql',
   },
   test: {

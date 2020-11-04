@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { Button, Form, Input } from 'antd';
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
-import { useInput } from '../pages/signup'; // TODO: util 폴더로 옮기기
+import useInput from '../hooks/useInput';
 import { LOG_IN_REQUEST } from '../reducers/user';
 
 const LoginForm = () => {
@@ -11,8 +11,7 @@ const LoginForm = () => {
   const { isLoggingIn } = useSelector(state => state.user);
   const dispatch = useDispatch();
 
-  const onSubmitForm = useCallback((e) => { //자식 컴포넌트로 넘기는 함수는 usecallback을 사용
-    e.preventDefault();
+  const onSubmitForm = useCallback(() => { //자식 컴포넌트로 넘기는 함수는 usecallback을 사용
     dispatch({
       type: LOG_IN_REQUEST,
       data: {
@@ -23,7 +22,7 @@ const LoginForm = () => {
   }, [id, password]);
 
   return (
-    <Form onSubmit={onSubmitForm} style={{ padding: '10px' }}>
+    <Form onFinish={onSubmitForm} style={{ padding: '10px' }}>
       <div>
         <label htmlFor="user-id">아이디</label>
         <br />

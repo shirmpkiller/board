@@ -6,10 +6,24 @@ const { isLoggedIn } = require('./middleware');
 
 const router = express.Router();
 
-router.get('/', isLoggedIn, (req, res) => { // /api/user/
-  const user = Object.assign({}, req.user.toJSON());
-  delete user.password;
-  return res.json(user);
+
+router.get('/', async (req, res, next) => { // GET /user
+  try {
+    if (req.user) {
+      const fullUserWithoutPassword = await db.User.findOne({
+        where: { id: req.user.id },
+        attributes: {
+          exclude: ['password']
+        }
+      })
+      res.status(200).json(fullUserWithoutPassword);//시퀄라이저에서 가져온 데이터는 json이 아니라서 json으로 변형
+    } else {
+      res.status(200).json(null);
+    }
+  } catch (error) {
+    console.error(error);
+   next(error);
+  }
 });
 router.post('/', async (req, res, next) => { // POST /api/user 회원가입
   try {
@@ -24,7 +38,7 @@ router.post('/', async (req, res, next) => { // POST /api/user 회원가입
     const hashedPassword = await bcrypt.hash(req.body.password, 12); // salt는 10~13 사이로
     const newUser = await db.User.create({
       nickname: req.body.nickname,
-      userId: req.body.userId,
+      UserId: req.body.userId,
       password: hashedPassword,
     });
     console.log(newUser);
@@ -56,7 +70,7 @@ router.get('/:id/posts', async (req, res, next) => {
   try {
     const posts = await db.Post.findAll({
       where: {
-        userId: parseInt(req.params.id, 10) || (req.user && req.user.id) || 0,
+        UserId: parseInt(req.params.id, 10) || (req.user && req.user.id) || 0,
         //남의 아이디 들어있으면 그 사람 아이디 들고오고 아이디가 0이면 내 게시물이다라는 걸 뜻함
         /*getInitalProps에서 state.user.me가 null일때 나로 간주하기 위해서 했던거에 따라서 parseInt(req.params.id)가
          */
@@ -78,7 +92,7 @@ router.get('/:id/commentposts', async (req, res, next) => {
   try {
     const comments = await db.Comment.findAll({
       where: {
-        userId: parseInt(req.params.id, 10) || (req.user && req.user.id) || 0,
+        UserId: parseInt(req.params.id, 10) || (req.user && req.user.id) || 0,
         //남의 아이디 들어있으면 그 사람 아이디 들고오고 아이디가 0이면 내 게시물이다라는 걸 뜻함
         /*getInitalProps에서 state.user.me가 null일때 나로 간주하기 위해서 했던거에 따라서 parseInt(req.params.id)가
          */

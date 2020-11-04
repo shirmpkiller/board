@@ -1,4 +1,4 @@
-import { all, call, fork, put, takeEvery } from 'redux-saga/effects';
+import { all, call, fork, put, takeEvery,takeLatest } from 'redux-saga/effects';
 import axios from 'axios';
 import {
   EDIT_NICKNAME_FAILURE, EDIT_NICKNAME_REQUEST,
@@ -15,9 +15,32 @@ import {
   SIGN_UP_FAILURE,
   SIGN_UP_REQUEST,
   SIGN_UP_SUCCESS,
+  LOAD_MY_INFO_FAILURE, LOAD_MY_INFO_REQUEST, LOAD_MY_INFO_SUCCESS,
   
 } from '../reducers/user';
 
+function loadMyInfoAPI() {
+  return axios.get('/user');
+}
+
+function* loadMyInfo() {
+  try {
+    const result = yield call(loadMyInfoAPI);
+    yield put({
+      type: LOAD_MY_INFO_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: LOAD_MY_INFO_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+function* watchLoadMyInfo() {
+  yield takeLatest(LOAD_MY_INFO_REQUEST, loadMyInfo);
+}
 function logInAPI(loginData) {
   // 서버에 요청을 보내는 부분
   return axios.post('/user/login', loginData, {
@@ -159,6 +182,7 @@ export default function* userSaga() {
     fork(watchLogOut),
     fork(watchLoadUser),
     fork(watchSignUp),
-    fork(watchEditNickname)
+    fork(watchEditNickname),
+    fork(watchLoadMyInfo),
   ]);
 }

@@ -4,6 +4,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { LOAD_SEARCH_POSTS_REQUEST } from '../reducers/post';
 import PostCard from '../containers/PostCard';
 import {Row,Col,Divider} from 'antd'
+import {END} from 'redux-saga';
+import wrapper from '../store/configureStore';
+import axios from 'axios';
+
 const Search = ({ keyword }) => {
   const dispatch = useDispatch();
   const countRef = useRef([]);
@@ -69,4 +73,20 @@ Search.getInitialProps = async (context) => {
   return { keyword };
 };
 
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
+  const cookie = context.req ? context.req.headers.cookie : '';
+  const { keyword } = context.query;
+
+  axios.defaults.headers.Cookie = '';
+  if (context.req && cookie) {
+    axios.defaults.headers.Cookie = cookie;
+  }
+  context.store.dispatch({
+    type: LOAD_SEARCH_POSTS_REQUEST,
+    data: keyword,
+  });
+  context.store.dispatch(END);
+  await context.store.sagaTask.toPromise();
+  return { props: {keyword} };
+});
 export default Search;

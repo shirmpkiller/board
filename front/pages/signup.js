@@ -3,19 +3,7 @@ import { Button, Checkbox, Form, Input, Row, Col } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import Router from 'next/router';
 import { SIGN_UP_REQUEST } from '../reducers/user';
-
-export const useInput = (initValue = null) => {//커스톰 훅 만들가
-  const [value, setter] = useState(initValue);
-  const handler = useCallback((e) => {//props로 넘겨지는 함수들은 usecallback으로 감쌈
-     /*
-        state가 바뀔 때마다 그 페이지 전체가 다시 실행되면서 함수들이 새로 생성되는데 그 함수를
-        전달받은 자식 컴포넌트들은 렌더링을 다시 하게 됨 함수는 객첸데 객체는 새로 생성하면 이전과 다른 객체가 됨
-        다른 객체가 되면 의도치 않은 리렌더링이 발생하기 때문에 usecallback으로 감싸는 것
-    */
-    setter(e.target.value);
-  }, []);
-  return [value, handler];
-};
+import useInput from '../hooks/useInput';
 
 const Signup = () => {
   const [passwordCheck, setPasswordCheck] = useState('');
@@ -27,7 +15,7 @@ const Signup = () => {
   const [nick, onChangeNick] = useInput('');
   const [password, onChangePassword] = useInput('');
   const dispatch = useDispatch();
-  const { isSigningUp, me } = useSelector(state => state.user);
+  const { isSigningUp, me,isSignedUp } = useSelector(state => state.user);
 
   useEffect(() => {
     if (me) {
@@ -36,10 +24,14 @@ const Signup = () => {
     }
   }, [me && me.id]);
 
-  const onSubmit = useCallback((e) => {/*
+  useEffect(() => {
+    if (isSignedUp) {
+      Router.replace('/');
+    }
+  }, [isSignedUp]);
+  const onSubmit = useCallback(() => {/*
     props로 전달하는 함수들은 usecallback으로 감싸줘야함 의도치않은 re-rendering을 피하기 위해서
   */
-    e.preventDefault();
     if (password !== passwordCheck) {//비밀번호 비교가 다르면
       return setPasswordError(true);
     }
@@ -74,7 +66,7 @@ const Signup = () => {
     <>
     <Row>
       <Col  xs={{ span: 24 }} md={{ span: 12, offset: 6 }}>
-       <Form onSubmit={onSubmit} style={{ padding: 10 }}>
+       <Form onFinish={onSubmit} style={{ padding: 10 }}>
         <div>
           <label htmlFor="user-id">아이디</label>
           <br />

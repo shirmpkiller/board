@@ -1,18 +1,29 @@
-module.exports = (sequelize, DataTypes) => { //강의에서 그냥 패턴처럼 만들어서 따라하라함
-    const Comment = sequelize.define('Comment', {
+
+const DataTypes = require('sequelize');
+const { Model } = DataTypes;
+
+module.exports = class Comment extends Model {
+  static init(sequelize) {
+    return super.init({
+      // id가 기본적으로 들어있다.
       content: {
-        type: DataTypes.TEXT, // 긴 글
-        allowNull: false,// 필수
+        type: DataTypes.TEXT,
+        allowNull: false,
       },
+      // UserId: 1
+      // PostId: 3
     }, {
-      timestamps: false,
-      charset: 'utf8mb4', //charset, collate 이렇게 적어야 한글 저장
-      collate: 'utf8mb4_general_ci',
+      modelName: 'Comment',
+      tableName: 'comments',
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_general_ci', // 이모티콘 저장
+      sequelize,
     });
-    Comment.associate = (db) => {
-      db.Comment.belongsTo(db.User, { foreignKey:'userId', targetKey:'id' });
-      db.Comment.belongsTo(db.Post, { foreignKey:'postId', targetKey:'id' });
-    };
-    return Comment;
-  };
+  }
+  static associate(db) {
+    db.Comment.belongsTo(db.User);
+    db.Comment.belongsTo(db.Post);
+  }
+};
+
   

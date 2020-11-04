@@ -1,19 +1,24 @@
 import React,{useCallback,useEffect} from 'react';
 import { useSelector,useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
-import {Helmet} from 'react-helmet'; //Helmet이 head태그에 들어가는 것을 관리해줌
 import {Row,Col,Button,Card} from 'antd';
-import PostComment from '../containers/PostComment';
+import PostComment from '../../containers/PostComment';
 import styled from 'styled-components';
-import {REMOVE_POST_REQUEST } from '../reducers/post';
 import Router from 'next/router';
-import { LOAD_POST_REQUEST,REMOVE_POST_CHECK } from '../reducers/post';
+import { LOAD_POST_REQUEST,REMOVE_POST_CHECK,REMOVE_POST_REQUEST } from '../../reducers/post';
+import { LOAD_MY_INFO_REQUEST } from '../../reducers/user';
+import { useRouter } from 'next/router';
+import {END} from 'redux-saga';
+import wrapper from '../../store/configureStore';
+import axios from 'axios';
 
 
-const Post =( id ) =>{
+const Post =( ) =>{
 const dispatch =useDispatch();
   const { me } = useSelector(state => state.user);
   const { singlePost,postRemoved } = useSelector(state => state.post);
+  const router = useRouter();
+  const { id } = router.query;
 
 
   const NewButton = styled(Button)`
@@ -31,22 +36,20 @@ useEffect(() => {
   }
 }, [postRemoved]);
 
-const onRemovePost = useCallback( (e) => {
-  e.preventDefault();
-  dispatch({
+
+const onRemovePost = useCallback( () => {
+    return  dispatch({
     type: REMOVE_POST_REQUEST,
     data: singlePost.id,
   });
 });
 
 const extraButton = <NewButton type="text" danger={true.toString()} onClick={onRemovePost}>삭제</NewButton>
-
- console.log(singlePost.User)
     return(
         <>
         <Row guttter={8}>
           <Col xs={{span:22, offset:1}} md={{span:18,offset:2}}>
-          {me.id == singlePost.User.id ?  
+          {me.id == singlePost.UserId ?  
          <Card style={{ marginTop: 16 }} type="inner" title={singlePost.title} extra={extraButton} >
             {singlePost.content}
         </Card>
@@ -63,18 +66,23 @@ const extraButton = <NewButton type="text" danger={true.toString()} onClick={onR
       </>
     );
 }
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
+  const cookie = context.req ? context.req.headers.cookie : '';
+  axios.defaults.headers.Cookie = '';
+  if (context.req && cookie) {
+    axios.defaults.headers.Cookie = cookie;
+  }
+  context.store.dispatch({
+    type: LOAD_MY_INFO_REQUEST,
+  });
+  context.store.dispatch({ 
+    type: LOAD_POST_REQUEST,
+    data: context.query.id,
+  });
+  context.store.dispatch(END);
+  await context.store.sagaTask.toPromise();
+  return { props: {} };
+});
 
-Post.getInitialProps = async (context) => {
-  
-    context.store.dispatch({
-      type: LOAD_POST_REQUEST,
-      data: context.query.id,
-    });
-    return { id: parseInt(context.query.id, 10) };
-  };
-  
-Post.propTypes = {
-    id: PropTypes.number.isRequired,
-  };
 
 export default Post;

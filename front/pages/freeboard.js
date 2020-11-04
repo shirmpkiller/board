@@ -4,23 +4,29 @@ import {ArrowUpOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { ADD_POST_REQUEST, LOAD_MAIN_POSTS_REQUEST,LOAD_SEARCH_POSTS_REQUEST } from '../reducers/post';
 import PostCard from '../containers/PostCard';
+import {END} from 'redux-saga';
+import wrapper from '../store/configureStore';
+import axios from 'axios';
+import useInput from '../hooks/useInput';
+import { LOAD_MY_INFO_REQUEST } from '../reducers/user';
 
 const Freeboard =() => {
 const dispatch = useDispatch();
 const countRef = useRef([]);
 
 const { me } = useSelector(state => state.user);
-const { mainPosts,postRemoved,hasMorePosts } = useSelector(state => state.post);
+const { mainPosts,postRemoved,hasMorePosts,postAdded} = useSelector(state => state.post);
 const [postFormOpened, setPostFormOpened] = useState(false)
-const [postTitle, setPostTitle] = useState("")
-const [postContent, setPostContent] = useState("")
 const [buttonText, setButtonText] = useState("글 작성")
+const [postTitle, onChangePostTitle, setPostTitle] = useInput('');
+const [postContent, onChangePostContent, setPostContent] = useInput('');
 
-// useEffect(() => {
-//   if (postRemoved) {
-//     postRemoved=false
-//   }
-// }, []);
+useEffect(() => {
+  if (postAdded) {
+    setPostTitle('');
+    setPostContent('');
+  }
+}, [postAdded]);
 const loadMorePosts = useCallback(() => {
     if (hasMorePosts) {
       const lastId = mainPosts[mainPosts.length - 1].id;//스크롤 도중 새로운 게 등록될수있어서 offset대신 lastId를 넣어줌
@@ -36,8 +42,8 @@ const loadMorePosts = useCallback(() => {
 }, [hasMorePosts, mainPosts.length]);
 
 
-const onSubmitForm = useCallback((e) => {
-    e.preventDefault();
+const onSubmitForm = useCallback(() => {
+    
     if (!postTitle || !postTitle.trim()) {
       return alert('제목을 작성하세요.');
     }
@@ -47,20 +53,11 @@ const onSubmitForm = useCallback((e) => {
     const formData = new FormData();
     formData.append('postTitle', postTitle);
     formData.append('postContent', postContent);
-  
     dispatch({
       type: ADD_POST_REQUEST,
       data: formData,
     });
   }, [postTitle, postContent]);
-
-const onChangePostTitle = useCallback((e) => {
-    setPostTitle(e.target.value);
-  }, []);
-
-  const onChangePostContent = useCallback((e) => {
-    setPostContent(e.target.value);
-  }, []);
 const onTogglePost = useCallback(() => {
     if (!me) {
         return alert('로그인이 필요합니다.');
@@ -76,13 +73,13 @@ const onTogglePost = useCallback(() => {
   }, [postFormOpened]);
 
  return (
-     <div style= {{overflow:'hidden'}}>
+     <div style= {{overflow:'hidden', marginBottom: 30}}>
        <Row gutter={8} >
             <Col xs={{span:22, offset:1}} md={{span:18,offset:2}} >
             <Divider orientation="left">자유게시판</Divider>
                {postFormOpened ? 
                 <div style={{marginBottom : 10},{marginTop: 10}}> 
-                    <Form encType="multipart/form-data" onSubmit={onSubmitForm}>
+                    <Form encType="multipart/form-data" onFinish={onSubmitForm}>
                         <div style= {{marginBottom:10}}>
                           <Input placeholder="제목을 작성하세요" value={postTitle} onChange={onChangePostTitle} />
                         </div>
@@ -110,7 +107,7 @@ const onTogglePost = useCallback(() => {
                       <PostCard key={c.id} post={c} />
                     );
                   })}
-                  {hasMorePosts && <Button style={{ width: '100%' }} onClick={loadMorePosts}>더 보기</Button>}
+                  {hasMorePosts && <Button style={{ width: '100%' ,marginTop:20}} onClick={loadMorePosts}>더 보기</Button>}
                 </div>
             </Col>
           </Row>
@@ -118,11 +115,22 @@ const onTogglePost = useCallback(() => {
       </div>
  );
 };
-Freeboard.getInitialProps = async (context) => {
-  context.store.dispatch({ //context의 키중에 store(리덕스 스토어)가 있는데 store안에는 dispatch,getstate(리덕스 스테이트를 가져올수있는)등이 있다
+
+
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
+  const cookie = context.req ? context.req.headers.cookie : '';
+  axios.defaults.headers.Cookie = '';
+  if (context.req && cookie) {
+    axios.defaults.headers.Cookie = cookie;
+  }
+  context.store.dispatch({
+    type: LOAD_MY_INFO_REQUEST,
+  });
+  context.store.dispatch({
     type: LOAD_MAIN_POSTS_REQUEST,
   });
-};
-
-
+  context.store.dispatch(END);
+  await context.store.sagaTask.toPromise();
+  return { props: {} };
+});
 export default Freeboard;

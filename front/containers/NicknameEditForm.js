@@ -12,8 +12,7 @@ const NicknameEditForm = () => {
     setEditedName(e.target.value);
   }, []);
 
-  const onEditNickname = useCallback((e) => {
-    e.preventDefault();
+  const onEditNickname = useCallback(() => {
     dispatch({
       type: EDIT_NICKNAME_REQUEST,
       data: editedName,
@@ -21,7 +20,7 @@ const NicknameEditForm = () => {
   }, [editedName]);
 
   return (
-    <Form style={{ marginBottom: '20px', border: '1px solid #d9d9d9', padding: '20px' }} onSubmit={onEditNickname}>
+    <Form style={{ marginBottom: '20px', border: '1px solid #d9d9d9', padding: '20px' }} onFinish={onEditNickname}>
       <Input addonBefore="닉네임" value={editedName || (me && me.nickname)} onChange={onChangeNickname} />
       <Button type="primary" htmlType="submit" loading={isEditingNickname}>수정</Button>
     </Form>

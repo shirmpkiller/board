@@ -1,4 +1,4 @@
-import produce from 'immer';//immer에서 produce라느 것을 가져온다
+import produce from '../util/produce';
 
 export const initialState = {
    what: [],
@@ -10,6 +10,7 @@ export const initialState = {
     isAddingComment: false,
   addCommentErrorReason: '',
   commentAdded: false,
+  commentRemoved: false,
     singlePost: ["asd"],
     commentList:[],
     hasMorePosts:true
@@ -43,12 +44,16 @@ export const REMOVE_POST_SUCCESS = 'REMOVE_POST_SUCCESS';
 export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
 export const REMOVE_POST_CHECK = 'REMOVE_POST_CHECK';
 
+export const REMOVE_COMMENT_REQUEST = 'REMOVE_COMMENT_REQUEST';
+export const REMOVE_COMMENT_SUCCESS = 'REMOVE_COMMENT_SUCCESS';
+export const REMOVE_COMMENT_FAILURE = 'REMOVE_COMMENT_FAILURE';
+
 export const LOAD_SEARCH_POSTS_REQUEST = 'LOAD_SEARCH_POSTS_REQUEST';
 export const LOAD_SEARCH_POSTS_SUCCESS = 'LOAD_SEARCH_POSTS_SUCCESS';
 export const LOAD_SEARCH_POSTS_FAILURE = 'LOAD_SEARCH_POSTS_FAILURE';
 
-export default (state = initialState, action) => {
-    return produce(state, (draft) => {//immer 사용하기 위한 줄 /더이상 불변성 유지 안해도됨
+const reducer = (state = initialState, action) => produce(state, (draft) => {
+
       switch (action.type) {//draft를 state라 여기고 바꾸면 됨
         case ADD_POST_REQUEST: {
           draft.isAddingPost = true;
@@ -140,8 +145,22 @@ export default (state = initialState, action) => {
       case REMOVE_POST_FAILURE: {
         break;
       }
+      
       case REMOVE_POST_CHECK: {
         draft.postRemoved =false;
+        break;
+      }
+      case REMOVE_COMMENT_REQUEST: {
+        draft.commentRemoved =false;
+        break;
+      }
+      case REMOVE_COMMENT_SUCCESS: {
+        const index = draft.singlePost.Comments.findIndex(v => v.id === action.data);
+        draft.singlePost.Comments.splice(index, 1);
+        draft.commentRemoved =true;
+        break;
+      }
+      case REMOVE_COMMENT_FAILURE: {
         break;
       }
         default: {
@@ -149,4 +168,4 @@ export default (state = initialState, action) => {
         }
       }
     });
-};
+    export default reducer;

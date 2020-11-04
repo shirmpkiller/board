@@ -1,14 +1,22 @@
+
 const Sequelize = require('sequelize');
+const comment = require('./comment');
+const post = require('./post');
+const user = require('./user');
+
 const env = process.env.NODE_ENV || 'development';
 const config = require('../config/config')[env];
 const db = {};
 
 const sequelize = new Sequelize(config.database, config.username, config.password, config);
-//config를 불러와서 sequelize를 설정
 
-db.User = require('./user')(sequelize, Sequelize);
-db.Post = require('./post')(sequelize, Sequelize);
-db.Comment = require('./comment')(sequelize, Sequelize);
+db.Comment = comment;
+db.Post = post;
+db.User = user;
+
+Object.keys(db).forEach(modelName => {
+  db[modelName].init(sequelize);
+});
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {

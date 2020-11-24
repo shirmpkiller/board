@@ -6,6 +6,14 @@ const db = require('../models');
 const { isLoggedIn } = require('./middleware');
 
 const router = express.Router();
+
+try {
+  fs.accessSync('uploads');
+} catch (error) {
+  console.log('uploads 폴더가 없으므로 생성합니다.');
+  fs.mkdirSync('uploads');
+}
+
 const upload = multer({
   storage: multer.diskStorage({//컴퓨터의 디스크에 저장한다는 뜻인데 나중에 클라우드로 바뀜
     destination(req, file, done) {//destination은 어떤 폴더 경로에 저장할지 //done은 콜백함수
@@ -21,35 +29,54 @@ const upload = multer({
 });
 
 router.post('/', isLoggedIn, upload.none(), async (req, res, next) => { // POST /post
-console.log(req.body.postTitle)
-console.log(req.body.postContent)
   try {//upload.none()은 이미지를 하나도 안올렸을 경우
     const newPost = await db.Post.create({
       title : req.body.postTitle,
       content : req.body.postContent, 
       UserId: req.user.id,
     });
-
+    if (req.body.image) {
+      if (Array.isArray(req.body.image)) { // 이미지를 여러 개 올리면 image: [제로초.png, 부기초.png]
+        const images = await Promise.all(req.body.image.map((image) => db.Image.create({ src: image })));
+        await newPost.addImages(images);
+      } else { // 이미지를 하나만 올리면 image: 제로초.png
+        const image = await db.Image.create({ src: req.body.image });
+        await newPost.addImages(image);
+      }}
     const fullPost = await db.Post.findOne({
       where: { id: newPost.id },
       include: [{
+        model: db.Image,
+      }, {
+        model: db.Comment,
+        include: [{
+          model: db.User, // 댓글 작성자
+          attributes: ['id', 'nickname'],
+        }],
+      } , {
         model: db.User,
         attributes: ['id', 'nickname'],
         }],
     });
-    res.json(fullPost);
+    res.status(201).json(fullPost);
   } catch (e) {
     console.error(e);
     next(e);
   }
 });
 
+router.post('/images', isLoggedIn, upload.array('image'), (req, res, next) => { // POST /post/images
+  console.log(req.files);
+  res.json(req.files.map((v) => v.filename));
+});
 
 router.get('/:id', async (req, res, next) => {
   try {
     const post = await db.Post.findOne({
       where: { id: req.params.id },
-      include: [{ //게시글 작성자랑 이미지 불러오기
+      include: [{
+        model: db.Image, 
+      }, { //게시글 작성자랑 이미지 불러오기
         model: db.User, 
         attributes: ['id', 'nickname']
       },{
@@ -68,7 +95,6 @@ router.get('/:id', async (req, res, next) => {
     next(e);
   }
 });
-
 
 router.delete('/:id', isLoggedIn, async (req, res, next) => {
   try { //에러 처리 안하면 서버 죽을 수 도 있음

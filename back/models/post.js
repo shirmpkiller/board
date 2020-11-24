@@ -26,5 +26,6 @@ module.exports = class Post extends Model {
   static associate(db) {
     db.Post.belongsTo(db.User); // post.addUser, post.getUser, post.setUser
     db.Post.hasMany(db.Comment); // post.addComments, post.getComments
+    db.Post.hasMany(db.Image); // post.addImages, post.getImages
   }
 };

@@ -51,7 +51,15 @@ const extraButton = <NewButton type="text" danger={true.toString()} onClick={onR
           <Col xs={{span:22, offset:1}} md={{span:18,offset:2}}>
           {me.id == singlePost.UserId ?  
          <Card style={{ marginTop: 16 }} type="inner" title={singlePost.title} extra={extraButton} >
-            {singlePost.content}
+           <div style={{marginBottom: '10px'}}>{singlePost.content}</div>
+            <div style={{ position :'relative' }}>
+               {singlePost.Images[0] ? 
+                  singlePost.Images.map((v, i) => (
+                    <div key={v.id} style={{ display: 'inline-block'}}>
+                      <img src={`http://localhost:3065/${v.src}`} style={{ width: '200px',height:'150px',marginLeft:'4px', marginTop:'4px'  }} alt={v.src} />                     
+                    </div>
+                  )) : null}
+            </div> 
         </Card>
         :
         <Card style={{ marginTop: 16 }} type="inner" title={singlePost.title} >

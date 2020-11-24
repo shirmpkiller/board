@@ -2,6 +2,7 @@ import produce from '../util/produce';
 
 export const initialState = {
    what: [],
+   imagePaths: [],
     mainPosts: [], // 화면에 보일 포스트들
     addPostErrorReason: '', // 포스트 업로드 실패 사유
     isAddingPost: false, // 포스트 업로드 중
@@ -13,8 +14,15 @@ export const initialState = {
   commentRemoved: false,
     singlePost: ["asd"],
     commentList:[],
-    hasMorePosts:true
+    hasMorePosts:true,
+    uploadImagesLoading: false,
+  uploadImagesDone: false,
+  uploadImagesError: null,
   };
+  export const UPLOAD_IMAGES_REQUEST = 'UPLOAD_IMAGES_REQUEST';
+  export const UPLOAD_IMAGES_SUCCESS = 'UPLOAD_IMAGES_SUCCESS';
+  export const UPLOAD_IMAGES_FAILURE = 'UPLOAD_IMAGES_FAILURE';
+
   export const LOAD_MAIN_POSTS_REQUEST = 'LOAD_MAIN_POSTS_REQUEST';
   export const LOAD_MAIN_POSTS_SUCCESS = 'LOAD_MAIN_POSTS_SUCCESS';
   export const LOAD_MAIN_POSTS_FAILURE = 'LOAD_MAIN_POSTS_FAILURE';
@@ -55,6 +63,21 @@ export const LOAD_SEARCH_POSTS_FAILURE = 'LOAD_SEARCH_POSTS_FAILURE';
 const reducer = (state = initialState, action) => produce(state, (draft) => {
 
       switch (action.type) {//draft를 state라 여기고 바꾸면 됨
+        case UPLOAD_IMAGES_REQUEST:
+          draft.uploadImagesLoading = true;
+          draft.uploadImagesDone = false;
+          draft.uploadImagesError = null;
+          break;
+        case UPLOAD_IMAGES_SUCCESS: {
+          draft.imagePaths = action.data;
+          draft.uploadImagesLoading = false;
+          draft.uploadImagesDone = true;
+          break;
+        }
+        case UPLOAD_IMAGES_FAILURE:
+          draft.uploadImagesLoading = false;
+          draft.uploadImagesError = action.error;
+          break;
         case ADD_POST_REQUEST: {
           draft.isAddingPost = true;
           draft.addingPostErrorReason = '';
@@ -69,7 +92,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
           draft.isAddingPost = false;
           draft.mainPosts.unshift(action.data); //앞에 추가되면 unshift
           draft.postAdded = true;
-          //draft.imagePaths = [];
+          draft.imagePaths = [];
           break;
         }
         case ADD_POST_FAILURE: {

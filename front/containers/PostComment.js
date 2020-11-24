@@ -49,7 +49,7 @@ const PostComment = () =>{
             <>
                 <Form onFinish={onSubmitComment}>
                     <Input.TextArea rows={3} value={commentText} onChange={onChangeCommentText} />
-                    <Button type="primary" htmlType="submit" loading={isAddingComment}>작성</Button>
+                    <Button style={{marginTop:'4px'}} type="primary" htmlType="submit" loading={isAddingComment}>작성</Button>
                 </Form>
                 <List
                     header={`${singlePost.Comments ? singlePost.Comments.length : 0} 댓글`}

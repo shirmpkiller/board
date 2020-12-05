@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Head from 'next/head';
 import 'antd/dist/antd.css';
-
+import '../style.css';
 import wrapper from '../store/configureStore';
 import AppLayout from '../components/AppLayout';
 const NodeBird = ({ Component }) => (

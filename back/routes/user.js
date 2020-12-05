@@ -38,7 +38,7 @@ router.post('/', async (req, res, next) => { // POST /api/user 회원가입
     const hashedPassword = await bcrypt.hash(req.body.password, 12); // salt는 10~13 사이로
     const newUser = await db.User.create({
       nickname: req.body.nickname,
-      UserId: req.body.userId,
+      userId: req.body.userId,
       password: hashedPassword,
     });
     console.log(newUser);

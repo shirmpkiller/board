@@ -33,6 +33,7 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => { // POST 
     const newPost = await db.Post.create({
       title : req.body.postTitle,
       content : req.body.postContent, 
+      anonymity : req.body.anonymity,
       UserId: req.user.id,
     });
     if (req.body.image) {
@@ -82,11 +83,14 @@ router.get('/:id', async (req, res, next) => {
       },{
         model:db.Comment,
         attributes:['id','content','createdAt','userId','postId'],
-        //order: [['createdAt', 'ASC']], //생성된 시간이 오름차순으로
         include: [{ //게시글 작성자랑 이미지 불러오기
           model: db.User, 
           attributes: ['id', 'nickname']
         }]
+      }, {
+        model: db.User, // 좋아요 누른 사람
+        as: 'Likers',
+        attributes: ['id'],
       }],
     });
     res.json(post);
@@ -151,5 +155,31 @@ router.post('/:id/comment', isLoggedIn, async (req, res, next) => { // POST /api
     return next(e);
   }
 });
+router.patch('/:postId/like', isLoggedIn, async (req, res, next) => { // PATCH /post/1/like
+  try {
+    const post = await db.Post.findOne({ where: { id: req.params.postId }});
+    if (!post) {
+      return res.status(403).send('게시글이 존재하지 않습니다.');
+    }
+    await post.addLikers(req.user.id);
+    res.json({ PostId: post.id, UserId: req.user.id });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 
+router.delete('/:postId/like', isLoggedIn, async (req, res, next) => { // DELETE /post/1/like
+  try {
+    const post = await db.Post.findOne({ where: { id: req.params.postId }});
+    if (!post) {
+      return res.status(403).send('게시글이 존재하지 않습니다.');
+    }
+    await post.removeLikers(req.user.id);
+    res.json({ PostId: post.id, UserId: req.user.id });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 module.exports = router;

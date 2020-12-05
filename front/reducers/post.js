@@ -3,7 +3,8 @@ import produce from '../util/produce';
 export const initialState = {
    what: [],
    imagePaths: [],
-    mainPosts: [], // 화면에 보일 포스트들
+    mainPosts: [],
+    hotPosts: [], // 화면에 보일 포스트들
     addPostErrorReason: '', // 포스트 업로드 실패 사유
     isAddingPost: false, // 포스트 업로드 중
     postAdded: false, // 포스트 업로드 성공
@@ -15,10 +16,21 @@ export const initialState = {
     singlePost: ["asd"],
     commentList:[],
     hasMorePosts:true,
+    hasMoreHotPosts:true,
     uploadImagesLoading: false,
   uploadImagesDone: false,
   uploadImagesError: null,
+  likePostLoading: false,
+  likePostDone: false,
+  likePostError: null,
+  unlikePostLoading: false,
+  unlikePostDone: false,
+  unlikePostError: null,
   };
+  export const LOAD_SEARCH_POSTS_REQUEST = 'LOAD_SEARCH_POSTS_REQUEST';
+export const LOAD_SEARCH_POSTS_SUCCESS = 'LOAD_SEARCH_POSTS_SUCCESS';
+export const LOAD_SEARCH_POSTS_FAILURE = 'LOAD_SEARCH_POSTS_FAILURE';
+
   export const UPLOAD_IMAGES_REQUEST = 'UPLOAD_IMAGES_REQUEST';
   export const UPLOAD_IMAGES_SUCCESS = 'UPLOAD_IMAGES_SUCCESS';
   export const UPLOAD_IMAGES_FAILURE = 'UPLOAD_IMAGES_FAILURE';
@@ -26,7 +38,11 @@ export const initialState = {
   export const LOAD_MAIN_POSTS_REQUEST = 'LOAD_MAIN_POSTS_REQUEST';
   export const LOAD_MAIN_POSTS_SUCCESS = 'LOAD_MAIN_POSTS_SUCCESS';
   export const LOAD_MAIN_POSTS_FAILURE = 'LOAD_MAIN_POSTS_FAILURE';
-  
+
+  export const LOAD_HOT_POSTS_REQUEST = 'LOAD_HOT_POSTS_REQUEST';
+  export const LOAD_HOT_POSTS_SUCCESS = 'LOAD_HOT_POSTS_SUCCESS';
+  export const LOAD_HOT_POSTS_FAILURE = 'LOAD_HOT_POSTS_FAILURE';
+
   export const LOAD_POST_REQUEST = 'LOAD_POST_REQUEST';
 export const LOAD_POST_SUCCESS = 'LOAD_POST_SUCCESS';
 export const LOAD_POST_FAILURE = 'LOAD_POST_FAILURE';
@@ -56,13 +72,46 @@ export const REMOVE_COMMENT_REQUEST = 'REMOVE_COMMENT_REQUEST';
 export const REMOVE_COMMENT_SUCCESS = 'REMOVE_COMMENT_SUCCESS';
 export const REMOVE_COMMENT_FAILURE = 'REMOVE_COMMENT_FAILURE';
 
-export const LOAD_SEARCH_POSTS_REQUEST = 'LOAD_SEARCH_POSTS_REQUEST';
-export const LOAD_SEARCH_POSTS_SUCCESS = 'LOAD_SEARCH_POSTS_SUCCESS';
-export const LOAD_SEARCH_POSTS_FAILURE = 'LOAD_SEARCH_POSTS_FAILURE';
+export const LIKE_POST_REQUEST = 'LIKE_POST_REQUEST';
+export const LIKE_POST_SUCCESS = 'LIKE_POST_SUCCESS';
+export const LIKE_POST_FAILURE = 'LIKE_POST_FAILURE';
 
+export const UNLIKE_POST_REQUEST = 'UNLIKE_POST_REQUEST';
+export const UNLIKE_POST_SUCCESS = 'UNLIKE_POST_SUCCESS';
+export const UNLIKE_POST_FAILURE = 'UNLIKE_POST_FAILURE';
 const reducer = (state = initialState, action) => produce(state, (draft) => {
 
       switch (action.type) {//draft를 state라 여기고 바꾸면 됨
+        case LIKE_POST_REQUEST:
+          draft.likePostLoading = true;
+          draft.likePostDone = false;
+          draft.likePostError = null;
+          break;
+        case LIKE_POST_SUCCESS: {
+          draft.singlePost.Likers.push({ id: action.data.UserId });
+          draft.likePostLoading = false;
+          draft.likePostDone = true;
+          break;
+        }
+        case LIKE_POST_FAILURE:
+          draft.likePostLoading = false;
+          draft.likePostError = action.error;
+          break;
+        case UNLIKE_POST_REQUEST:
+          draft.unlikePostLoading = true;
+          draft.unlikePostDone = false;
+          draft.unlikePostError = null;
+          break;
+        case UNLIKE_POST_SUCCESS: {
+          draft.singlePost.Likers = draft.singlePost.Likers.filter((v) => v.id !== action.data.UserId);
+          draft.unlikePostLoading = false;
+          draft.unlikePostDone = true;
+          break;
+        }
+        case UNLIKE_POST_FAILURE:
+          draft.unlikePostLoading = false;
+          draft.unlikePostError = action.error;
+          break;
         case UPLOAD_IMAGES_REQUEST:
           draft.uploadImagesLoading = true;
           draft.uploadImagesDone = false;
@@ -133,6 +182,21 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         case LOAD_USER_COMMENTPOSTS_FAILURE : {
         break;
       }
+      case LOAD_HOT_POSTS_REQUEST:  {
+      draft.hotPosts = !action.lastId ? [] : draft.hotPosts; //lastId가 아예 없을때까지 포함해서 설정
+      draft.hasMoreHotPosts = action.lastId ? draft.hasMoreHotPosts : true; //처음 불러오는거(lastId는 0)이면 true(스크롤기능활성) 더 불러오고있는상태면 기존상태유지
+      break;
+    }
+    case LOAD_HOT_POSTS_SUCCESS:{
+      action.data.forEach((d) => {
+        draft.hotPosts.push(d);
+      });
+      draft.hasMoreHotPosts = action.data.length === 10; //스크롤할게 더 있는지 판단하는 부분
+      break;
+    }
+    case LOAD_HOT_POSTS_FAILURE:{
+      break;
+    }
       case LOAD_POST_SUCCESS: {
         draft.singlePost = action.data;
         break;

@@ -1,4 +1,4 @@
-import { Avatar, Button, Card,List } from 'antd';
+import { Avatar, Button, Card,List,Col,Row } from 'antd';
 import React, { useCallback } from 'react';
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,9 +15,8 @@ const UserProfile = () => {
   }, []);
 
   return (
-    <>
-    <Card
-    >
+    <div >
+         <Card>
       <Card.Meta
         avatar={<Avatar>{me.nickname[0]}</Avatar>}
         title={me.nickname}
@@ -31,7 +30,8 @@ const UserProfile = () => {
     <Link href={{ pathname: '/usercomment', query: { id: me.id } }}
       as={`/usercomment/${me.id}`}><a> <NewButton block>댓글 단 글</NewButton></a></Link>
     <Link href="/signup"><a> <NewButton block>스크랩 한 글</NewButton></a></Link>
-</>
+       
+</div>
   );
 };
 

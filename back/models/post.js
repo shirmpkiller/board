@@ -14,7 +14,10 @@ module.exports = class Post extends Model {
         type: DataTypes.TEXT,
         allowNull: false,
       },
-      // RetweetId
+      anonymity: {
+        type:DataTypes.BOOLEAN,
+        allowNull: true,
+      }
     }, {
       modelName: 'Post',
       tableName: 'posts',
@@ -27,5 +30,6 @@ module.exports = class Post extends Model {
     db.Post.belongsTo(db.User); // post.addUser, post.getUser, post.setUser
     db.Post.hasMany(db.Comment); // post.addComments, post.getComments
     db.Post.hasMany(db.Image); // post.addImages, post.getImages
+    db.Post.belongsToMany(db.User, { through: 'Like', as: 'Likers' }) // post.addLikers, post.removeLikers
   }
 };

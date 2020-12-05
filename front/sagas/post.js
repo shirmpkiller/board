@@ -10,6 +10,9 @@ import {
   LOAD_MAIN_POSTS_FAILURE,
   LOAD_MAIN_POSTS_REQUEST,
   LOAD_MAIN_POSTS_SUCCESS,
+  LOAD_HOT_POSTS_FAILURE,
+  LOAD_HOT_POSTS_REQUEST,
+  LOAD_HOT_POSTS_SUCCESS,
   LOAD_POST_SUCCESS, LOAD_POST_FAILURE, LOAD_POST_REQUEST,
   LOAD_USER_POSTS_FAILURE,
   LOAD_USER_POSTS_REQUEST,
@@ -29,6 +32,12 @@ import {
   UPLOAD_IMAGES_FAILURE,
   UPLOAD_IMAGES_REQUEST,
   UPLOAD_IMAGES_SUCCESS,
+  LIKE_POST_FAILURE,
+  LIKE_POST_REQUEST,
+  LIKE_POST_SUCCESS,
+  UNLIKE_POST_FAILURE,
+  UNLIKE_POST_REQUEST,
+  UNLIKE_POST_SUCCESS,
 } from '../reducers/post';
 //mport { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from '../reducers/user';
 
@@ -64,8 +73,8 @@ function* watchAddPost() {
   yield throttle(1000,ADD_POST_REQUEST, addPost); 
 }
 
-function loadMainPostsAPI(lastId = 0, limit = 10) {//lastId가 0이면 처음부터 불러오는것
-  return axios.get(`/posts?lastId=${lastId}&limit=${limit}`);
+function loadMainPostsAPI(lastId) {//lastId가 0이면 처음부터 불러오는것
+  return axios.get(`/posts?lastId=${lastId || 0}`);
 }
 
 function* loadMainPosts(action) {
@@ -245,8 +254,7 @@ function* watchRemoveComment() {
 }
 
 function loadSearchPostsAPI(keyword, lastId) {
-  if(keyword){ return axios.get(`/search/${encodeURIComponent(keyword)}?lastId=${lastId}&limit=10`);}
-  else { return axios.get(`/search/?lastId=${lastId}&limit=10`);}
+   return axios.get(`/search/${encodeURIComponent(keyword)}?lastId=${lastId || 0}`);
 } //한글, 특수문자는 줄때는 encode, 받을 때는 decode
 
 function* loadSearchPosts(action) {
@@ -290,6 +298,80 @@ function* uploadImages(action) {
 function* watchUploadImages() {
   yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImages);
 }
+
+function likePostAPI(data) {
+  return axios.patch(`/post/${data}/like`);
+}
+
+function* likePost(action) {
+  try {
+    const result = yield call(likePostAPI, action.data);
+    yield put({
+      type: LIKE_POST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: LIKE_POST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+function* watchLikePost() {
+  yield takeLatest(LIKE_POST_REQUEST, likePost);
+}
+
+function unlikePostAPI(data) {
+  return axios.delete(`/post/${data}/like`);
+}
+
+function* unlikePost(action) {
+  try {
+    const result = yield call(unlikePostAPI, action.data);
+    yield put({
+      type: UNLIKE_POST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: UNLIKE_POST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+function* watchUnlikePost() {
+  yield takeLatest(UNLIKE_POST_REQUEST, unlikePost);
+}
+
+
+function loadHotPostsAPI(lastId) {//lastId가 0이면 처음부터 불러오는것
+  return axios.get(`/posts/hot?lastId=${lastId || 0}`);
+}
+
+function* loadHotPosts(action) {
+  try {
+    const result = yield call(loadHotPostsAPI, action.lastId);
+    yield put({
+      type: LOAD_HOT_POSTS_SUCCESS,
+      data: result.data,
+    });
+  } catch (e) {
+    yield put({
+      type: LOAD_HOT_POSTS_FAILURE,
+      error: e,
+    });
+  }
+}
+
+function* watchLoadHotPosts() {
+  yield throttle(2000, LOAD_HOT_POSTS_REQUEST, loadHotPosts); //load main posts request가 호출되고 2초동안 다시 호출 불가
+  //throttle로 방지하는 거는 saga에만 해당되고 redux는 별개다
+}
+
 export default function* postSaga() {
   yield all([
     fork(watchAddPost),
@@ -302,5 +384,8 @@ export default function* postSaga() {
     fork(watchLoadSearchPosts),
     fork(watchRemoveComment),
     fork(watchUploadImages),
+    fork(watchLikePost),
+    fork(watchUnlikePost),
+    fork(watchLoadHotPosts),
   ]);
 }

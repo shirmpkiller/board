@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "next -p 3060",
-    "build": "next build",
-    "start": "next start"
+    "build": "cross-env NODE_ENV=production ANALYZE=true next build",
+    "start": "cross-env NODE_ENV=production next start -p 3060"
   },
   "author": "Seung",
   "license": "MIT",
@@ -20,7 +20,7 @@
     "dotenv": "^8.2.0",
     "immer": "^7.0.5",
     "moment": "^2.27.0",
-    "next": "^9.4.4",
+    "next": "^9.5.5",
     "next-redux-saga": "^4.1.2",
     "next-redux-wrapper": "^6.0.2",
     "prop-types": "^15.7.2",

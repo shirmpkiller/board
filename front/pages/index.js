@@ -1,12 +1,18 @@
-import React from 'react';
-import { useSelector} from 'react-redux';
-import {Col,Row,Table, Divider} from 'antd';
+
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+
+import { useSelector } from 'react-redux';
+import { Col, Row, Carousel, Divider, Table } from 'antd';
 import LoginForm from '../containers/LoginForm';
 import UserProfile from '../containers/UserProfile';
 import { END } from 'redux-saga';
 import axios from 'axios';
 import wrapper from '../store/configureStore';
 import { LOAD_MY_INFO_REQUEST } from '../reducers/user';
+import { LOAD_MAIN_POSTS_REQUEST, LOAD_HOT_POSTS_REQUEST } from '../reducers/post';
+import {
+  LikeOutlined,
+} from '@ant-design/icons';
 
 /*
   useEffect는 특정 값이 변할 때 콜백함수처럼 사용하는 것이고요.
@@ -14,46 +20,113 @@ import { LOAD_MY_INFO_REQUEST } from '../reducers/user';
 */
 const Home = () => {
   const { me } = useSelector(state => state.user);
+  const { mainPosts, hotPosts } = useSelector(state => state.post);
+
+  const carouselStyle = {
+    height: '200px',
+    color: '#fff',
+    lineHeight: '160px',
+    textAlign: 'center',
+    background: '#364d79',
+  };
+
+  let data = [];
+  let hotData = [];
+
+  for (let i = 0; i < 5; i++) {
+    data[i] = {
+      key: i,
+      title: mainPosts[i].title,
+      // like: mainPosts[i].Likers.length,
+      name: <><LikeOutlined style={{ color: 'blue' }} />
+        <span style={{ marginRight: '3px' }}>{mainPosts[i].Likers.length}</span>{mainPosts[i].anonymity ? mainPosts[i].User.nickname : '익명'}
+      </>,
+    }
+  };
+
+  for (let i = 0; i < 5; i++) {
+    if (hotData[i]) {
+      hotData[i] = {
+        key: i,
+        title: hotPosts[i].title,
+        // like: mainPosts[i].Likers.length,
+        name: <><LikeOutlined style={{ color: 'blue' }} />
+          <span style={{ marginRight: '3px' }}>{hotPosts[i].Likers.length}</span>{hotPosts[i].anonymity ? hotPosts[i].User.nickname : '익명'}
+        </>,
+      }
+    }
+
+  };
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
+      dataIndex: 'title',
+      ellipsis: true,
     },
+    // {
+    //   dataIndex: 'like',
+    //   width:'30px',
+    //   align:'right',
+    // },
     {
-      title: 'Age',
-      dataIndex: 'age',
+      dataIndex: 'name',
+      width: ' 100px',
+      align: 'right',
+      ellipsis: true,
+      render: text => <span style={{ fontSize: '13px', color: 'gray' }}>{text}</span>,
     },
   ];
-  const data = [
-    { key: '1', name: '답글, 댓글 삭제', age: 32,  },
-    { key: '2', name: '좋아요 싫어요',   age: 42,  },
-    { key: '3', name: '이미지, 동영상 저장', age: 32,  },
-    { key: '4', name: '아이디 찾기', age: 32,  },
-    { key: '5', name: '네이버 카카오 구글 로그인', age: 32,  },
-    { key: '6', name: '프로필 변경 페이지', age: 32,  },
 
-  ];
 
   return (
-    <div style={{marginTop:15}}>
-        <Row gutter={8} >
-          <Col xs={{span:22, offset:1}} md={{span:3,offset:1}} >
-            {me//로그인한 상황이면 userprofile을 보여주고 아니면 loginform
-              ? <UserProfile />
-              : <LoginForm />}
-         </Col>
-         <Col xs={{span:22, offset:1}} md={{span:15}} >
-          <Divider orientation="left">공지사항</Divider>
-          <Table columns={columns} dataSource={data} size="middle" />
-         </Col>
-        </Row>
+    <div style={{ marginTop: 15 }}>
+      <Row  gutter={8} >
+        <Col xs={{ span: 20, offset: 2 }} md={{ span: 3, offset: 1 }}>
+          {me//로그인한 상황이면 userprofile을 보여주고 아니면 loginform
+            ? <UserProfile />
+            : <LoginForm />}
+        </Col>
+        <Col xs={{ span: 22, offset: 1 }} md={{ span: 7 }} >
+          <Divider orientation="left">weekly'best</Divider>
+          <Table size='small' columns={columns} pagination={false} showHeader={false} dataSource={data} />
+        </Col>
+        <Col xs={{ span: 22, offset: 1 }} md={{ span: 7 }} >
+          <Divider orientation="left">editor's choice</Divider>
+          <Table size='small' columns={columns} pagination={false} showHeader={false} dataSource={hotData} />
+        </Col>
+      </Row>
+      <Row gutter={8}>
+        <Col xs={{ span: 22, offset: 1 }} md={{ span: 11, offset: 4}} >
+          <Carousel autoplay style={{ marginTop: '8px' }}>
+            <div>
+              <h3 style={carouselStyle}>1</h3>
+            </div>
+            <div>
+              <h3 style={carouselStyle}>2</h3>
+            </div>
+            <div>
+              <h3 style={carouselStyle}>3</h3>
+            </div>
+            <div>
+              <h3 style={carouselStyle}>4</h3>
+            </div>
+          </Carousel>,
+          </Col>
+      </Row>
+      <Row gutter={8}>
+        <Col xs={{ span: 22, offset: 1 }} md={{ span: 9, offset: 5 }}>
+          <Divider orientation="left">weekly'best</Divider>
+          <Table size='small' pagination={false} showHeader={false} />
+        </Col>
+      </Row>
+
+
     </div>
   );
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
   console.log('getServerSideProps start');
-  console.log(context.req.headers);//cookie가 있다면 headers에 들어 있음
+  //console.log(context.req.headers);//cookie가 있다면 headers에 들어 있음
   const cookie = context.req ? context.req.headers.cookie : '';//서버사이드렌더링하면 브라우저에서가 아니라 프런드서버에서 실행돼서
   axios.defaults.headers.Cookie = '';                           //쿠키를 수동으로 보내게 설정해야함
   if (context.req && cookie) {
@@ -61,6 +134,12 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
   }
   context.store.dispatch({ //context안에 store라는 게 있음
     type: LOAD_MY_INFO_REQUEST,
+  });
+  context.store.dispatch({
+    type: LOAD_MAIN_POSTS_REQUEST,
+  });
+  context.store.dispatch({
+    type: LOAD_HOT_POSTS_REQUEST,
   });
   context.store.dispatch(END);//request만 하고 끝나는게 아니라 success가 될 때까지 기다리기 위해서
   console.log('getServerSideProps end');

@@ -10,11 +10,11 @@ module.exports = class Post extends Model {
         type: DataTypes.STRING(20), // 20글자 이하
         allowNull: false, // 필수
       },
-      // userId: {
-      //   type: DataTypes.STRING(20),
-      //   allowNull: false,
-      //   unique: true, // 고유한 값
-      // },
+      userId: {
+        type: DataTypes.STRING(20),
+        allowNull: false,
+        unique: true, // 고유한 값
+      },
       password: {
         type: DataTypes.STRING(100), // 100글자 이하
         allowNull: false,
@@ -30,6 +30,7 @@ module.exports = class Post extends Model {
   static associate(db) {
     db.User.hasMany(db.Post);
     db.User.hasMany(db.Comment);
+    db.User.belongsToMany(db.Post, { through: 'Like', as: 'Liked' });
   }
 };
 

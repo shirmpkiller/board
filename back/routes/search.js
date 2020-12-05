@@ -47,12 +47,23 @@ router.get('/:keyword', async (req, res, next) => {
     //lastId가 0일경우 조건없이 처음부터 가져오면 됨
     const posts = await db.Post.findAll({
       where,
-      include: [ {
+      limit: 10,
+      order: [
+        ['createdAt', 'DESC'],
+        [db.Comment, 'createdAt', 'DESC'],
+      ],
+      include: [{
+        model: db.Comment
+      } , {
+       model: db.Image,
+      },{
         model: db.User,
         attributes: ['id', 'nickname'],
+      }, {
+        model: db.User, // 좋아요 누른 사람
+        as: 'Likers',
+        attributes: ['id'],
       }],
-      order: [['id', 'DESC']],//desc는 내림차순 최신순이라는 뜻
-      limit: parseInt(req.query.limit, 10),
     });
     res.json(posts);
   } catch (e) {
@@ -82,7 +93,6 @@ router.get('/', async (req, res, next) => {
         attributes: ['id', 'nickname'],
       }],
       order: [['id', 'DESC']],//desc는 내림차순 최신순이라는 뜻
-      limit: parseInt(req.query.limit, 10),
     });
     res.json(posts);
   } catch (e) {

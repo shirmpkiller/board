@@ -6,6 +6,9 @@ import {
   ADD_POST_SUCCESS,
   ADD_COMMENT_FAILURE,
   ADD_COMMENT_REQUEST,
+  ADD_RECOMMENT_SUCCESS,
+  ADD_RECOMMENT_FAILURE,
+  ADD_RECOMMENT_REQUEST,
   ADD_COMMENT_SUCCESS,
   LOAD_MAIN_POSTS_FAILURE,
   LOAD_MAIN_POSTS_REQUEST,
@@ -127,7 +130,8 @@ function* watchLoadPost() {
 }
 
 function addCommentAPI(data) {
-  return axios.post(`/post/${data.postId}/comment`, { content: data.content }, {
+  // console.log(data.recommentId);
+  return axios.post(`/post/${data.postId}/comment`, { content: data.content,parentCommentId: data.parentCommentId}, {
     withCredentials: true,
   });
 }
@@ -153,6 +157,36 @@ function* addComment(action) {
 
 function* watchAddComment() {
   yield takeLatest(ADD_COMMENT_REQUEST, addComment);
+}
+
+function addRecommentAPI(data) {
+   console.log(data.recommentId);
+  return axios.post(`/post/${data.postId}/recomment`, { content: data.content,parentCommentId: data.parentCommentId}, {
+    withCredentials: true,
+  });
+}
+
+function* addRecomment(action) {
+  try {
+    const result = yield call(addRecommentAPI, action.data);
+    yield put({
+      type: ADD_RECOMMENT_SUCCESS,
+      data: {
+        postId: action.data.postId,
+        comment: result.data,
+      },
+    });
+  } catch (e) {
+    console.error(e);
+    yield put({
+      type: ADD_RECOMMENT_FAILURE,
+      error: e,
+    });
+  }
+}
+
+function* watchAddRecomment() {
+  yield takeLatest(ADD_RECOMMENT_REQUEST, addRecomment);
 }
 
 function loadUserPostsAPI(id) {
@@ -378,6 +412,7 @@ export default function* postSaga() {
     fork(watchLoadMainPosts),
     fork(watchLoadPost),
     fork(watchAddComment),
+    fork(watchAddRecomment),
     fork(watchLoadUserPosts),
     fork(watchLoadUserCommentPosts),
     fork(watchRemovePost),

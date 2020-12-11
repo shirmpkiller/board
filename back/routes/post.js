@@ -82,11 +82,10 @@ router.get('/:id', async (req, res, next) => {
         attributes: ['id', 'nickname']
       },{
         model:db.Comment,
-        attributes:['id','content','createdAt','userId','postId'],
         include: [{ //게시글 작성자랑 이미지 불러오기
           model: db.User, 
           attributes: ['id', 'nickname']
-        }]
+        }],
       }, {
         model: db.User, // 좋아요 누른 사람
         as: 'Likers',
@@ -133,11 +132,48 @@ router.post('/:id/comment', isLoggedIn, async (req, res, next) => { // POST /api
     if (!post) {
       return res.status(404).send('포스트가 존재하지 않습니다.');
     }
-    console.log(post.id)
+    // const originComment = await db.Comment.findOne({ where: { id:req.body.recommentId } });
+    // if (!originComment) {
+    //   return res.status(404).send('원댓글이 존재하지 않습니다.');
+    //}
     const newComment = await db.Comment.create({
       PostId: post.id,
       UserId: req.user.id,
       content: req.body.content,
+      parentCommentId : req.body.parentCommentId,
+    });
+    await post.addComment(newComment.id);//시퀄라이즈에서 add시리즈를 자동으로 추가해주기 때문에 가능
+    const comment = await db.Comment.findOne({
+      where: {
+        id: newComment.id,
+      },
+      include: [{
+        model: db.User,
+        attributes: ['id', 'nickname'],
+      }],
+    });
+    return res.json(comment);
+  } catch (e) {
+    console.error(e);
+    return next(e);
+  }
+});
+
+router.post('/:id/recomment', isLoggedIn, async (req, res, next) => { // POST /api/post/1000000/comment
+  try {
+    const post = await db.Post.findOne({ where: { id: req.params.id } });
+    if (!post) {
+      return res.status(404).send('포스트가 존재하지 않습니다.');
+    }
+    // const originComment = await db.Comment.findOne({ where: { id:req.body.recommentId } });
+    // if (!originComment) {
+    //   return res.status(404).send('원댓글이 존재하지 않습니다.');
+    //}
+    const newComment = await db.Comment.create({
+      PostId: post.id,
+      UserId: req.user.id,
+      content: req.body.content,
+      parentCommentId : req.body.parentCommentId,
     });
     await post.addComment(newComment.id);//시퀄라이즈에서 add시리즈를 자동으로 추가해주기 때문에 가능
     const comment = await db.Comment.findOne({

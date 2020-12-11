@@ -1,7 +1,8 @@
 import produce from '../util/produce';
 
 export const initialState = {
-   what: [],
+  singlePost: ["asd"], 
+  what: [],
    imagePaths: [],
     mainPosts: [],
     hotPosts: [], // 화면에 보일 포스트들
@@ -13,7 +14,7 @@ export const initialState = {
   addCommentErrorReason: '',
   commentAdded: false,
   commentRemoved: false,
-    singlePost: ["asd"],
+   
     commentList:[],
     hasMorePosts:true,
     hasMoreHotPosts:true,
@@ -62,6 +63,10 @@ export const ADD_POST_FAILURE = 'ADD_POST_FAILURE';
 export const ADD_COMMENT_REQUEST = 'ADD_COMMENT_REQUEST';
 export const ADD_COMMENT_SUCCESS = 'ADD_COMMENT_SUCCESS';
 export const ADD_COMMENT_FAILURE = 'ADD_COMMENT_FAILURE';
+
+export const ADD_RECOMMENT_REQUEST = 'ADD_RECOMMENT_REQUEST';
+export const ADD_RECOMMENT_SUCCESS = 'ADD_RECOMMENT_SUCCESS';
+export const ADD_RECOMMENT_FAILURE = 'ADD_RECOMMENT_FAILURE';
 
 export const REMOVE_POST_REQUEST = 'REMOVE_POST_REQUEST';
 export const REMOVE_POST_SUCCESS = 'REMOVE_POST_SUCCESS';
@@ -215,6 +220,26 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         break;
       }
       case ADD_COMMENT_FAILURE: {
+        draft.isAddingComment = false;
+        draft.addingPostErrorReason = action.error;
+        break;
+      }
+      case ADD_RECOMMENT_REQUEST: {
+        draft.isAddingComment = true;
+        draft.addCommentErrorReason = '';
+        draft.commentAdded = false;
+        break;
+      }
+      case ADD_RECOMMENT_SUCCESS: {
+        console.log(action.data);
+        //const postIndex = draft.mainPosts.findIndex(v => v.id === action.data.postId);
+        const indexComment = draft.singlePost.Comments.find((v) => v.id === action.data.RecommentId);
+        indexComment.Recomment.unshift(action.data); //추가하는 건 unshift 또는 push
+        draft.isAddingComment = false;
+        draft.commentAdded = true;
+        break;
+      }
+      case ADD_RECOMMENT_FAILURE: {
         draft.isAddingComment = false;
         draft.addingPostErrorReason = action.error;
         break;

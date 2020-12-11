@@ -10,6 +10,10 @@ module.exports = class Comment extends Model {
         type: DataTypes.TEXT,
         allowNull: false,
       },
+      parentCommentId : {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      }
       // UserId: 1
       // PostId: 3
     }, {
@@ -23,7 +27,6 @@ module.exports = class Comment extends Model {
   static associate(db) {
     db.Comment.belongsTo(db.User);
     db.Comment.belongsTo(db.Post);
-    // db.Comment.belongsTo(db.Comment, {  as: 'Recommenting' });
     // db.Comment.belongsToMany(db.Comment, { through: 'Recomment', as: 'Recommentings', foreignKey: 'RecommenterId' });
   }
 };

@@ -117,7 +117,7 @@ const Freeboard = () => {
   return (
     <div style={{ overflow: 'hidden', marginBottom: 30 }}>
       <Row gutter={8} >
-        <Col xs={{ span: 22, offset: 1 }} md={{ span: 18, offset: 2 }} >
+        <Col xs={{ span: 22, offset: 1 }} sm={{ span: 18, offset: 2 }} >
           <Divider orientation="left">자유게시판</Divider>
           {postFormOpened ?
             <div style={{ marginBottom: 10 }, { marginTop: 10 }}>

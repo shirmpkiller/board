@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { END } from 'redux-saga';
-
+import {Row,Col,Divider} from 'antd';
 import axios from 'axios';
 import { LOAD_SEARCH_POSTS_REQUEST } from '../../reducers/post';
 import PostCard from '../../containers/PostCard';
@@ -34,12 +34,16 @@ const Search = () => {
   }, [mainPosts.length, hasMorePosts, keyword]);
 
   return (
-    <div>
-      {mainPosts.map((c) => (
-        <PostCard key={c.id} post={c} />
-      ))}
-    </div>
-      
+    <Row gutter={8} >
+      <Col xs={{ span: 22, offset: 1 }} sm={{ span: 18, offset: 2 }} >
+      <Divider orientation="left">{`${keyword}에 대한 검색결과`}</Divider>
+        <div>
+          {mainPosts.map((c) => (
+            <PostCard key={c.id} post={c} />
+          ))}
+        </div>
+      </Col>
+    </Row>
   );
 };
 

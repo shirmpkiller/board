@@ -80,22 +80,22 @@ const Home = () => {
   return (
     <div style={{ marginTop: 15 }}>
       <Row  gutter={8} >
-        <Col xs={{ span: 20, offset: 2 }} md={{ span: 3, offset: 1 }}>
+        <Col xs={{ span: 16, offset: 4 }} sm={{span: 5, offset:1}} md={{ span: 4, offset: 1 }} lg={{ span: 3, offset: 1 }} >
           {me//로그인한 상황이면 userprofile을 보여주고 아니면 loginform
             ? <UserProfile />
             : <LoginForm />}
         </Col>
-        <Col xs={{ span: 22, offset: 1 }} md={{ span: 7 }} >
+        <Col xs={{ span: 22, offset: 1 }} sm={{ span: 7 }} >
           <Divider orientation="left">weekly'best</Divider>
           <Table size='small' columns={columns} pagination={false} showHeader={false} dataSource={data} />
         </Col>
-        <Col xs={{ span: 22, offset: 1 }} md={{ span: 7 }} >
+        <Col xs={{ span: 22, offset: 1 }} sm={{ span: 7 }} >
           <Divider orientation="left">editor's choice</Divider>
           <Table size='small' columns={columns} pagination={false} showHeader={false} dataSource={hotData} />
         </Col>
       </Row>
       <Row gutter={8}>
-        <Col xs={{ span: 22, offset: 1 }} md={{ span: 11, offset: 4}} >
+        <Col xs={{ span: 22, offset: 1 }} sm={{ span: 11, offset: 5}} >
           <Carousel autoplay style={{ marginTop: '8px' }}>
             <div>
               <h3 style={carouselStyle}>1</h3>
@@ -111,12 +111,6 @@ const Home = () => {
             </div>
           </Carousel>,
           </Col>
-      </Row>
-      <Row gutter={8}>
-        <Col xs={{ span: 22, offset: 1 }} md={{ span: 9, offset: 5 }}>
-          <Divider orientation="left">weekly'best</Divider>
-          <Table size='small' pagination={false} showHeader={false} />
-        </Col>
       </Row>
 
 

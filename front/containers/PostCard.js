@@ -55,7 +55,7 @@ const PostCard = ({ post }) => {//post는 props임
               <span>{post.anonymity ? `  익명` : `  ${post.User.nickname}` }</span>
               </>}
          >
-                    <div style={{display:'inline-block'}}>{post.content}</div>
+                    <div style={{ overflow:'hidden', maxHeight:'100px',display:'inline-block'}}>{post.content}</div>
    <div style={{display:'inline-block',float:'right'}}>  {post.Images[0] ? <img src={`http://localhost:3065/${post.Images[0].src}`} style={{ width: '100px' }} alt={'이미지'} /> : null}</div>
   {post.Images[0] ? <div style={{clear:'right',float: 'right', marginTop: '4px',color: 'red'}}><PictureOutlined/>{` ${post.Images.length}`}</div> : null}
   <div style={{float: 'right', marginTop: '4px', marginRight:'8px'}}><MessageOutlined/>{` ${post.Comments.length}`}</div>
